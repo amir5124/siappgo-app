@@ -3,154 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kebijakan Privasi - SiAPPGO</title>
+    <title>Privacy Policy | SiAPPGO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        
+        :root {
+            --brand-primary: #0062FF;
+            --brand-dark: #0F172A;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            scroll-behavior: smooth;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .bento-item {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .bento-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased">
+<body class="bg-[#F8FAFC] text-slate-900">
 
-    <div class="max-w-4xl mx-auto px-6 py-12">
+    <div class="fixed top-0 left-0 w-full h-full -z-10 overflow-hidden pointer-events-none">
+        <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-400/10 rounded-full blur-[120px]"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-400/10 rounded-full blur-[120px]"></div>
+    </div>
+
+    <div class="max-w-5xl mx-auto px-6 py-16">
         
-        <a href="index.html" class="inline-flex items-center text-sm font-medium text-slate-500 hover:text-blue-600 transition-colors mb-8 group">
-            <i data-lucide="chevron-left" class="w-4 h-4 mr-1 group-hover:-translate-x-1 transition-transform"></i>
-            Kembali ke Beranda
-        </a>
+        <nav class="mb-12 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                    <i data-lucide="zap" class="w-6 h-6"></i>
+                </div>
+                <span class="text-xl font-bold tracking-tight text-slate-900">SiAPPGO</span>
+            </div>
+        
+        </nav>
 
-        <header class="mb-12">
-            <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight mb-4">Kebijakan Privasi SiAPPGO</h1>
-            <div class="flex items-center text-slate-500 space-x-4">
-                <span class="flex items-center text-sm">
-                    <i data-lucide="calendar" class="w-4 h-4 mr-2"></i>
-                    Terakhir diperbarui: Januari 2026
+        <header class="mb-16 text-center md:text-left">
+            <h1 class="text-4xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight mb-6">
+                Kebijakan <span class="text-blue-600">Privasi</span>
+            </h1>
+            <div class="flex flex-wrap items-center gap-4 justify-center md:justify-start">
+                <span class="flex items-center text-xs font-bold uppercase tracking-widest bg-blue-100 text-blue-700 px-4 py-2 rounded-full">
+                    <i data-lucide="calendar" class="w-4 h-4 mr-2"></i> Update Jan 2026
                 </span>
-                <span class="flex items-center text-sm">
-                    <i data-lucide="shield-check" class="w-4 h-4 mr-2 text-emerald-500"></i>
-                    Data Aman & Terlindungi
+                <span class="flex items-center text-xs font-bold uppercase tracking-widest bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full">
+                    <i data-lucide="check-circle-2" class="w-4 h-4 mr-2"></i> IKN Nusantara Verified
                 </span>
             </div>
         </header>
 
-        <main class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-            <div class="p-8 md:p-12 space-y-12">
-                
-                <section class="bg-blue-50/50 rounded-2xl p-6 border border-blue-100">
-                    <p class="text-slate-700 leading-relaxed italic">
-                        SiAPPGO menghargai dan melindungi privasi setiap pengguna aplikasi kami. Kebijakan Privasi ini menjelaskan bagaimana kami mengumpulkan, menggunakan, menyimpan, dan melindungi data pribadi pengguna dalam penggunaan aplikasi SiAPPGO. Dengan menggunakan aplikasi SiAPPGO, Anda dianggap telah membaca, memahami, dan menyetujui seluruh ketentuan dalam Kebijakan Privasi ini.
-                    </p>
-                </section>
+        <div class="glass-card p-8 md:p-12 rounded-[2.5rem] shadow-sm mb-12 border-l-8 border-l-blue-600">
+            <p class="text-xl md:text-2xl text-slate-700 font-medium leading-relaxed italic">
+                "Kami berkomitmen penuh untuk melindungi data pribadi Anda melalui sistem keamanan perbankan standar industri."
+            </p>
+        </div>
 
-                <section class="space-y-6">
-                    <div class="flex items-center">
-                        <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mr-4">
-                            <i data-lucide="database" class="w-6 h-6"></i>
-                        </div>
-                        <h2 class="text-2xl font-bold text-slate-900">1. Informasi yang Kami Kumpulkan</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            
+            <div class="md:col-span-2 glass-card p-8 rounded-[2rem] bento-item">
+                <div class="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+                    <i data-lucide="database" class="w-6 h-6"></i>
+                </div>
+                <h2 class="text-2xl font-bold mb-4">1. Informasi yang Kami Kumpulkan</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-slate-600 text-sm">
+                    <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                        <p class="font-bold text-slate-900 mb-1">Data Pribadi</p>
+                        Nama, Nomor Telepon, Email, & Data Identitas.
                     </div>
-
-                    <div class="grid md:grid-cols-1 gap-6 ml-2 md:ml-14">
-                        <div class="space-y-3">
-                            <h3 class="font-bold text-slate-800 flex items-center">
-                                <i data-lucide="user" class="w-4 h-4 mr-2 text-blue-500"></i>
-                                a. Informasi Pribadi
-                            </h3>
-                            <div class="bg-slate-50 p-4 rounded-xl">
-                                <ul class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm text-slate-600">
-                                    <li class="flex items-center"><i data-lucide="dot" class="text-blue-500"></i> Nama</li>
-                                    <li class="flex items-center"><i data-lucide="dot" class="text-blue-500"></i> Nomor Telepon</li>
-                                    <li class="flex items-center"><i data-lucide="dot" class="text-blue-500"></i> Alamat Email</li>
-                                    <li class="flex items-center"><i data-lucide="dot" class="text-blue-500"></i> Data Identitas</li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <div class="space-y-3">
-                            <h3 class="font-bold text-slate-800 flex items-center">
-                                <i data-lucide="receipt" class="w-4 h-4 mr-2 text-blue-500"></i>
-                                b. Informasi Transaksi
-                            </h3>
-                            <p class="text-sm text-slate-600 ml-6">Kami mengumpulkan detail riwayat transaksi pulsa, paket data, pembayaran tagihan, transfer, waktu transaksi, serta nomor tujuan untuk menunjang layanan kami.</p>
-                        </div>
-
-                        <div class="space-y-3">
-                            <h3 class="font-bold text-slate-800 flex items-center">
-                                <i data-lucide="cpu" class="w-4 h-4 mr-2 text-blue-500"></i>
-                                c. Informasi Teknis
-                            </h3>
-                            <p class="text-sm text-slate-600 ml-6">Mencakup informasi perangkat (model, OS), Alamat IP, dan data log aplikasi untuk memastikan keamanan dan stabilitas sistem.</p>
-                        </div>
+                    <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                        <p class="font-bold text-slate-900 mb-1">Data Transaksi</p>
+                        Riwayat PPOB, Pulsa, & Transfer Bank.
                     </div>
-                </section>
-
-                <hr class="border-slate-100">
-
-                <section class="space-y-6">
-                    <div class="flex items-center">
-                        <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center mr-4">
-                            <i data-lucide="activity" class="w-6 h-6"></i>
-                        </div>
-                        <h2 class="text-2xl font-bold text-slate-900">2. Penggunaan Informasi</h2>
-                    </div>
-
-                    <div class="ml-2 md:ml-14 bg-slate-50 rounded-2xl p-6">
-                        <ul class="space-y-4">
-                            <li class="flex items-start">
-                                <div class="bg-white p-1 rounded-md border border-slate-200 mr-3 mt-1">
-                                    <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
-                                </div>
-                                <span class="text-slate-700">Menyediakan dan memproses layanan pembayaran di SiAPPGO.</span>
-                            </li>
-                            <li class="flex items-start">
-                                <div class="bg-white p-1 rounded-md border border-slate-200 mr-3 mt-1">
-                                    <i data-lucide="shield-alert" class="w-3 h-3 text-emerald-500"></i>
-                                </div>
-                                <span class="text-slate-700">Memverifikasi transaksi dan mencegah tindakan penipuan atau ilegal.</span>
-                            </li>
-                            <li class="flex items-start">
-                                <div class="bg-white p-1 rounded-md border border-slate-200 mr-3 mt-1">
-                                    <i data-lucide="zap" class="w-3 h-3 text-emerald-500"></i>
-                                </div>
-                                <span class="text-slate-700">Meningkatkan kualitas layanan dan pengembangan fitur aplikasi di masa depan.</span>
-                            </li>
-                            <li class="flex items-start">
-                                <div class="bg-white p-1 rounded-md border border-slate-200 mr-3 mt-1">
-                                    <i data-lucide="bell" class="w-3 h-3 text-emerald-500"></i>
-                                </div>
-                                <span class="text-slate-700">Memberikan informasi penting, notifikasi, dan promosi terkait layanan kami.</span>
-                            </li>
-                            <li class="flex items-start">
-                                <div class="bg-white p-1 rounded-md border border-slate-200 mr-3 mt-1">
-                                    <i data-lucide="file-text" class="w-3 h-3 text-emerald-500"></i>
-                                </div>
-                                <span class="text-slate-700">Keperluan administrasi dan pelaporan internal perusahaan.</span>
-                            </li>
-                        </ul>
-                    </div>
-                </section>
-
-                <section class="pt-6">
-                    <div class="bg-slate-900 text-slate-300 p-8 rounded-3xl text-center">
-                        <h4 class="text-white font-bold mb-2">Punya pertanyaan tentang privasi Anda?</h4>
-                        <p class="text-sm mb-6">Tim dukungan kami siap membantu memberikan penjelasan lebih lanjut.</p>
-                        <a href="mailto:support@siappgo.com" class="bg-white text-slate-900 px-6 py-3 rounded-xl font-bold hover:bg-blue-500 hover:text-white transition-all inline-flex items-center">
-                            <i data-lucide="mail" class="w-4 h-4 mr-2"></i>
-                            Hubungi Tim Privasi
-                        </a>
-                    </div>
-                </section>
+                </div>
             </div>
-        </main>
 
-        <footer class="mt-12 text-center text-slate-400 text-sm">
-            <p>&copy; 2026 SiAPPGO. Seluruh Hak Dilindungi.</p>
+            <div class="glass-card p-8 rounded-[2rem] bento-item bg-blue-600 text-white shadow-xl shadow-blue-200">
+                <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mb-6 backdrop-blur-md">
+                    <i data-lucide="activity" class="w-6 h-6"></i>
+                </div>
+                <h2 class="text-2xl font-bold mb-4">2. Penggunaan Informasi</h2>
+                <ul class="space-y-3 text-sm opacity-90">
+                    <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 mr-2"></i> Proses Layanan</li>
+                    <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 mr-2"></i> Verifikasi Keamanan</li>
+                    <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 mr-2"></i> Update Promo</li>
+                </ul>
+            </div>
+
+            <div class="md:col-span-3 grid md:grid-cols-2 gap-6">
+                <div class="glass-card p-8 rounded-[2rem] bento-item">
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <i data-lucide="shield-check" class="w-6 h-6 text-emerald-500 mr-3"></i> 
+                        3. Keamanan Data
+                    </h3>
+                    <p class="text-sm text-slate-500 leading-relaxed">Pencegahan akses tidak sah melalui pembatasan akses data pribadi hanya kepada pihak berwenang sesuai standar industri.</p>
+                </div>
+                <div class="glass-card p-8 rounded-[2rem] bento-item">
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <i data-lucide="users" class="w-6 h-6 text-orange-500 mr-3"></i> 
+                        4. Pihak Ketiga
+                    </h3>
+                    <p class="text-sm text-slate-500 leading-relaxed">Kami tidak menjual data Anda. Data dibagikan hanya kepada mitra perbankan resmi atau karena kewajiban hukum.</p>
+                </div>
+            </div>
+
+            <div class="md:col-span-3 bg-slate-900 rounded-[2.5rem] p-8 md:p-12 text-white relative overflow-hidden bento-item shadow-2xl">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-blue-600/30 blur-[100px]"></div>
+                <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
+                    <div class="max-w-xl space-y-4">
+                        <div class="inline-block px-4 py-1 bg-blue-600 rounded-full text-xs font-bold tracking-widest uppercase">Official Partner</div>
+                        <h2 class="text-3xl font-extrabold leading-tight">5. Layanan EDC Nobu Bank</h2>
+                        <p class="text-slate-400 text-sm">Sistem terhubung resmi dengan Nobu Bank melalui PT Multi Pembayaran Nasional (MSP). Kami menjamin privasi data kartu & PIN tidak tersimpan dalam sistem kami.</p>
+                    </div>
+                    <div class="flex items-center space-x-4 bg-white/5 p-6 rounded-3xl border border-white/10 backdrop-blur-sm">
+                        <i data-lucide="credit-card" class="w-12 h-12 text-blue-400"></i>
+                        <div>
+                            <p class="text-xs text-slate-400">Sertifikasi Keamanan</p>
+                            <p class="font-bold text-white">Bank Standard Security</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="md:col-span-2 glass-card p-8 rounded-[2rem] bento-item border-2 border-red-50">
+                <h2 class="text-2xl font-bold text-red-600 mb-6 flex items-center">
+                    <i data-lucide="user-x" class="w-6 h-6 mr-3"></i> 7. Penghapusan Akun
+                </h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <p class="font-bold text-slate-900 text-sm">Mekanisme Mandiri</p>
+                        <p class="text-xs text-slate-500">Menu Akun > Hapus Akun. Proses bersifat final dan data tidak dapat dipulihkan kembali.</p>
+                    </div>
+                    <div class="space-y-2">
+                        <p class="font-bold text-slate-900 text-sm">Data Retensi</p>
+                        <p class="text-xs text-slate-500">Beberapa data tetap disimpan terbatas guna keperluan penyelesaian hukum & sengketa.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card p-8 rounded-[2rem] bento-item">
+                <h2 class="text-xl font-bold mb-4">6. Hak Pengguna</h2>
+                <p class="text-xs text-slate-500 mb-4">Akses penuh untuk memperbarui, mengoreksi, atau mengajukan pertanyaan terkait data pribadi Anda.</p>
+                <i data-lucide="fingerprint" class="w-8 h-8 text-blue-600 opacity-20"></i>
+            </div>
+
+        </div>
+
+        <section class="glass-card rounded-[2.5rem] p-10 border-2 border-blue-100 bento-item">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-bold mb-2">10. Kontak SiAPPGO</h2>
+                <p class="text-slate-500">Tim kami berlokasi di IKN Nusantara, siap melayani Anda.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="flex flex-col items-center text-center p-6 bg-slate-50 rounded-3xl">
+                    <i data-lucide="map-pin" class="w-6 h-6 text-blue-600 mb-4"></i>
+                    <p class="text-xs font-bold text-slate-900 mb-1 tracking-wider uppercase">Office</p>
+                    <p class="text-xs text-slate-500">Sepaku District, IKN Nusantara, Kaltim</p>
+                </div>
+                <div class="flex flex-col items-center text-center p-6 bg-slate-50 rounded-3xl">
+                    <i data-lucide="message-circle" class="w-6 h-6 text-blue-600 mb-4"></i>
+                    <p class="text-xs font-bold text-slate-900 mb-1 tracking-wider uppercase">WhatsApp</p>
+                    <p class="text-xs text-slate-500">+62 822-2666-6610</p>
+                </div>
+                <div class="flex flex-col items-center text-center p-6 bg-slate-50 rounded-3xl">
+                    <i data-lucide="mail" class="w-6 h-6 text-blue-600 mb-4"></i>
+                    <p class="text-xs font-bold text-slate-900 mb-1 tracking-wider uppercase">Email</p>
+                    <p class="text-xs text-slate-500">siappgo.ikn@gmail.com</p>
+                </div>
+            </div>
+        </section>
+
+        <footer class="mt-16 text-center">
+            <p class="text-slate-400 text-xs font-medium uppercase tracking-[0.2em] mb-4">
+                SiAPPGO &copy; 2026 Powered by TangerangFast
+            </p>
+            <div class="flex justify-center space-x-4 opacity-50">
+                <div class="w-8 h-[2px] bg-slate-300"></div>
+                <div class="w-8 h-[2px] bg-slate-300"></div>
+                <div class="w-8 h-[2px] bg-slate-300"></div>
+            </div>
         </footer>
     </div>
 
     <script>
-      lucide.createIcons();
+        lucide.createIcons();
     </script>
 </body>
 </html>
