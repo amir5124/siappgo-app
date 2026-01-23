@@ -3,170 +3,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kebijakan Privasi | SiAPPGO</title>
+    <title>Privacy Policy | SiAPPGO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .content-section { margin-bottom: 2.5rem; }
-        .content-section h2 { font-size: 1.25rem; font-weight: 700; color: #1e293b; margin-bottom: 1rem; display: flex; align-items: center; }
-        .content-section p, .content-section li { color: #475569; line-height: 1.7; font-size: 0.95rem; }
-        .list-custom { padding-left: 1.5rem; list-style-type: none; }
-        .list-custom li { position: relative; margin-bottom: 0.5rem; }
-        .list-custom li::before { content: "•"; color: #3b82f6; font-weight: bold; position: absolute; left: -1.2rem; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            scroll-behavior: smooth;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .bento-item {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .bento-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+        }
     </style>
 </head>
-<body class="bg-white text-slate-900 border-t-4 border-blue-600">
+<body class="bg-[#F8FAFC] text-slate-900">
 
-    <div class="max-w-4xl mx-auto px-6 py-16">
+    <div class="fixed top-0 left-0 w-full h-full -z-10 overflow-hidden pointer-events-none">
+        <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-400/10 rounded-full blur-[120px]"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-400/10 rounded-full blur-[120px]"></div>
+    </div>
+
+    <div class="max-w-5xl mx-auto px-6 py-16">
         
-        <header class="mb-12 pb-8 border-b border-slate-100">
-            <h1 class="text-3xl md:text-4xl font-extrabold mb-4 text-slate-900">Kebijakan Privasi SiAPPGO</h1>
-            <p class="text-slate-500 text-sm">Terakhir diperbarui: Januari 2026</p>
+        <nav class="mb-12 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                    <i data-lucide="zap" class="w-6 h-6"></i>
+                </div>
+                <span class="text-xl font-bold tracking-tight text-slate-900">SiAPPGO</span>
+            </div>
+            <a href="index.html" class="px-5 py-2 bg-white rounded-full text-sm font-semibold border border-slate-200 hover:bg-slate-50 transition-all flex items-center shadow-sm">
+                <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i> Kembali
+            </a>
+        </nav>
+
+        <header class="mb-16 text-center md:text-left">
+            <h1 class="text-4xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight mb-6">
+                Kebijakan <span class="text-blue-600">Privasi</span>
+            </h1>
+            <div class="flex flex-wrap items-center gap-4 justify-center md:justify-start text-xs font-bold uppercase tracking-widest">
+                <span class="bg-blue-100 text-blue-700 px-4 py-2 rounded-full">Terakhir diperbarui: Januari 2026</span>
+            </div>
         </header>
 
-        <div class="mb-12">
-            <p class="text-slate-600 leading-relaxed mb-6">
-                SiAPPGO menghargai dan melindungi privasi setiap pengguna aplikasi kami. Kebijakan Privasi ini menjelaskan bagaimana kami mengumpulkan, menggunakan, menyimpan, dan melindungi data pribadi pengguna dalam penggunaan aplikasi SiAPPGO.
-            </p>
-            <p class="text-slate-600 leading-relaxed font-semibold">
-                Dengan menggunakan aplikasi SiAPPGO, Anda dianggap telah membaca, memahami, dan menyetujui seluruh ketentuan dalam Kebijakan Privasi ini.
+        <div class="glass-card p-8 md:p-12 rounded-[2.5rem] shadow-sm mb-12 border-l-8 border-l-blue-600">
+            <p class="text-slate-700 leading-relaxed italic">
+                SiAPPGO menghargai dan melindungi privasi setiap pengguna aplikasi kami. Kebijakan Privasi ini menjelaskan bagaimana kami mengumpulkan, menggunakan, menyimpan, dan melindungi data pribadi pengguna dalam penggunaan aplikasi SiAPPGO. Dengan menggunakan aplikasi SiAPPGO, Anda dianggap telah membaca, memahami, dan menyetujui seluruh ketentuan dalam Kebijakan Privasi ini.
             </p>
         </div>
 
-        <section class="content-section">
-            <h2>1. Informasi yang Kami Kumpulkan</h2>
-            <p class="mb-4">Kami dapat mengumpulkan informasi berikut:</p>
-            <div class="ml-4">
-                <p class="font-bold text-slate-800 text-sm mb-2">a. Informasi Pribadi</p>
-                <ul class="list-custom mb-4">
-                    <li>Nama</li>
-                    <li>Nomor telepon</li>
-                    <li>Alamat email</li>
-                    <li>Data identitas lain yang dibutuhkan untuk layanan tertentu</li>
-                </ul>
-                <p class="font-bold text-slate-800 text-sm mb-2">b. Informasi Transaksi</p>
-                <ul class="list-custom mb-4">
-                    <li>Riwayat transaksi pulsa, paket data, pembayaran tagihan, transfer, dan layanan lainnya</li>
-                    <li>Nomor tujuan transaksi</li>
-                    <li>Waktu dan nominal transaksi</li>
-                </ul>
-                <p class="font-bold text-slate-800 text-sm mb-2">c. Informasi Teknis</p>
-                <ul class="list-custom">
-                    <li>Informasi perangkat (jenis perangkat, sistem operasi)</li>
-                    <li>Alamat IP</li>
-                    <li>Data log aplikasi</li>
-                </ul>
-            </div>
-        </section>
-
-        <section class="content-section">
-            <h2>2. Penggunaan Informasi</h2>
-            <p class="mb-3">Informasi yang kami kumpulkan digunakan untuk:</p>
-            <ul class="list-custom">
-                <li>Menyediakan dan memproses layanan SiAPPGO</li>
-                <li>Memverifikasi transaksi dan mencegah penipuan</li>
-                <li>Meningkatkan kualitas layanan dan fitur aplikasi</li>
-                <li>Memberikan informasi, notifikasi, dan promo terkait layanan</li>
-                <li>Keperluan administrasi dan pelaporan internal</li>
-            </ul>
-        </section>
-
-        <section class="content-section">
-            <h2>3. Penyimpanan dan Keamanan Data</h2>
-            <p>SiAPPGO menyimpan data pengguna dengan sistem keamanan yang wajar dan sesuai standar industri untuk mencegah akses, penggunaan, atau pengungkapan yang tidak sah.</p>
-            <p class="mt-2">Kami membatasi akses data pribadi hanya kepada pihak yang berwenang dan membutuhkan untuk menjalankan layanan.</p>
-        </section>
-
-        <section class="content-section">
-            <h2>4. Pengungkapan Informasi kepada Pihak Ketiga</h2>
-            <p>SiAPPGO tidak menjual atau menyewakan data pribadi pengguna kepada pihak lain. Kami hanya dapat membagikan data kepada pihak ketiga dalam kondisi berikut:</p>
-            <ul class="list-custom mt-3">
-                <li>Mitra resmi yang bekerja sama untuk memproses layanan (bank, payment gateway, penyedia jaringan)</li>
-                <li>Kewajiban hukum atau permintaan resmi dari otoritas berwenang</li>
-                <li>Dengan persetujuan pengguna</li>
-            </ul>
-        </section>
-
-        <section class="content-section bg-slate-50 p-6 rounded-2xl border border-slate-200">
-            <h2>5. Ketentuan Khusus Layanan EDC</h2>
-            <p>Layanan EDC (Electronic Data Capture) yang tersedia melalui SiAPPGO merupakan sistem perbankan resmi yang terhubung dengan Nobu Bank melalui PT Multi Pembayaran Nasional selaku Merchant Service Provider (MSP) dari Nobu Bank.</p>
-            <p class="mt-3 font-bold">Dalam pelaksanaan layanan EDC:</p>
-            <ul class="list-custom mt-2">
-                <li>SiAPPGO bertindak sebagai mitra resmi PT Multi Pembayaran Nasional dalam menjalankan kegiatan transaksi EDC</li>
-                <li>Data transaksi EDC diproses dan dikelola sesuai dengan standar keamanan dan ketentuan perbankan yang berlaku</li>
-                <li>Informasi transaksi EDC berada dalam lingkup sistem perbankan dan tunduk pada kebijakan privasi serta regulasi dari pihak bank terkait</li>
-            </ul>
-            <p class="mt-3 text-blue-700 font-medium italic text-sm">SiAPPGO tidak menyimpan data sensitif perbankan, seperti PIN kartu, nomor kartu secara lengkap, atau informasi rahasia lain yang dilindungi oleh ketentuan perbankan.</p>
-        </section>
-
-        <section class="content-section">
-            <h2>6. Hak Pengguna</h2>
-            <p>Pengguna memiliki hak untuk:</p>
-            <ul class="list-custom mt-2">
-                <li>Mengakses dan memperbarui data pribadi</li>
-                <li>Meminta koreksi atas data yang tidak akurat</li>
-                <li>Mengajukan pertanyaan atau keluhan terkait privasi</li>
-            </ul>
-        </section>
-
-        <section class="content-section">
-            <h2>7. Penghapusan Akun dan Data Pengguna</h2>
-            <p class="mb-4">SiAPPGO memberikan hak penuh kepada pengguna untuk mengajukan penghapusan akun secara mandiri melalui aplikasi.</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             
-            <p class="font-bold text-slate-800 text-sm mb-2">a. Mekanisme Penghapusan Akun:</p>
-            <p class="mb-4">Pengguna dapat mengajukan penghapusan akun melalui: <strong>Menu Akun → Hapus Akun</strong>, lalu mengikuti tahapan yang tersedia di dalam aplikasi.</p>
-
-            <p class="font-bold text-slate-800 text-sm mb-2">b. Perhatian Sebelum Penghapusan:</p>
-            <ul class="list-custom mb-4">
-                <li>Sebelum melakukan penghapusan akun, pengguna wajib memastikan sisa saldo, bonus, atau komisi yang masih tersedia.</li>
-                <li>Apabila proses penghapusan tetap dilanjutkan, seluruh saldo, bonus, komisi, serta data terkait akan dihapus secara permanen dan tidak dapat dipulihkan atau diakses kembali.</li>
-            </ul>
-
-            <p class="font-bold text-slate-800 text-sm mb-2">c. Ruang Lingkup Penghapusan Data</p>
-            <p class="mb-4">Setelah permohonan dikonfirmasi: Akun pengguna akan dihapus secara permanen; Data pribadi yang terkait dengan akun akan dihapus dari sistem SiAPPGO; Seluruh saldo, bonus, dan komisi yang tersisa dianggap hangus.</p>
-
-            <p class="font-bold text-slate-800 text-sm mb-2">d. Penyimpanan Data Tertentu</p>
-            <p class="mb-4">Sebagian data dapat disimpan sementara apabila diperlukan untuk: Memenuhi kewajiban hukum dan peraturan perundang-undangan; Penyelesaian sengketa; Penegakan hak dan kewajiban hukum. Data tersebut akan disimpan secara aman dan dihapus secara permanen setelah masa penyimpanan berakhir.</p>
-
-            <p class="font-bold text-slate-800 text-sm mb-2">e. Sifat Permanen</p>
-            <p>Penghapusan akun bersifat final dan tidak dapat dibatalkan. Setelah penghapusan, pengguna tidak dapat lagi mengakses layanan SiAPPGO.</p>
-        </section>
-
-        <section class="content-section">
-            <h2>8. Cookies dan Teknologi Serupa</h2>
-            <p>SiAPPGO dapat menggunakan cookies atau teknologi serupa untuk meningkatkan pengalaman pengguna, menjaga keamanan, dan menganalisis penggunaan aplikasi.</p>
-        </section>
-
-        <section class="content-section">
-            <h2>9. Perubahan Kebijakan Privasi</h2>
-            <p>SiAPPGO dapat memperbarui Kebijakan Privasi ini sewaktu-waktu. Perubahan akan diinformasikan melalui aplikasi atau media resmi SiAPPGO. Pengguna disarankan untuk meninjau Kebijakan Privasi ini secara berkala.</p>
-        </section>
-
-        <section class="content-section bg-blue-50 p-8 rounded-3xl">
-            <h2 class="text-blue-900">10. Kontak Kami</h2>
-            <p class="mb-6">Jika Anda memiliki pertanyaan, saran, atau keluhan terkait Kebijakan Privasi ini, silakan hubungi:</p>
-            <div class="space-y-4">
-                <div class="flex items-start">
-                    <i data-lucide="map-pin" class="w-5 h-5 text-blue-600 mr-4 mt-1"></i>
-                    <p class="text-sm font-semibold">SiAPPGO<br><span class="font-normal text-slate-600">📍 Operational Office: Tengin Baru, Sepaku District, IKN Nusantara, Penajam Paser Utara Regency</span></p>
+            <div class="md:col-span-2 glass-card p-8 rounded-[2rem] bento-item">
+                <div class="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+                    <i data-lucide="database" class="w-6 h-6"></i>
                 </div>
-                <div class="flex items-center">
-                    <i data-lucide="message-circle" class="w-5 h-5 text-blue-600 mr-4"></i>
-                    <p class="text-sm font-semibold text-slate-600">📞 WhatsApp CS: <span class="text-slate-900">+62 822-2666-6610</span></p>
-                </div>
-                <div class="flex items-center">
-                    <i data-lucide="mail" class="w-5 h-5 text-blue-600 mr-4"></i>
-                    <p class="text-sm font-semibold text-slate-600">📧 Email: <span class="text-slate-900">siappgo.ikn@gmail.com</span></p>
+                <h2 class="text-2xl font-bold mb-6">1. Informasi yang Kami Kumpulkan</h2>
+                <div class="space-y-6 text-sm text-slate-600">
+                    <div>
+                        <p class="font-bold text-slate-900 mb-2">a. Informasi Pribadi</p>
+                        <p>Nama, Nomor telepon, Alamat email, Data identitas lain yang dibutuhkan untuk layanan tertentu.</p>
+                    </div>
+                    <div>
+                        <p class="font-bold text-slate-900 mb-2">b. Informasi Transaksi</p>
+                        <p>Riwayat transaksi pulsa, paket data, pembayaran tagihan, transfer, dan layanan lainnya; Nomor tujuan transaksi; Waktu dan nominal transaksi.</p>
+                    </div>
+                    <div>
+                        <p class="font-bold text-slate-900 mb-2">c. Informasi Teknis</p>
+                        <p>Informasi perangkat (jenis perangkat, sistem operasi), Alamat IP, Data log aplikasi.</p>
+                    </div>
                 </div>
             </div>
-        </section>
 
-        <footer class="mt-20 pt-8 border-t border-slate-100 text-center text-slate-400 text-xs">
-            <p>&copy; 2026 SiAPPGO. Hak Cipta Dilindungi Undang-Undang.</p>
+            <div class="glass-card p-8 rounded-[2rem] bento-item bg-blue-600 text-white shadow-xl">
+                <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mb-6 backdrop-blur-md">
+                    <i data-lucide="activity" class="w-6 h-6"></i>
+                </div>
+                <h2 class="text-2xl font-bold mb-4">2. Penggunaan Informasi</h2>
+                <ul class="space-y-3 text-xs opacity-90 leading-relaxed">
+                    <li>• Menyediakan dan memproses layanan SiAPPGO</li>
+                    <li>• Memverifikasi transaksi dan mencegah penipuan</li>
+                    <li>• Meningkatkan kualitas layanan dan fitur aplikasi</li>
+                    <li>• Memberikan informasi, notifikasi, dan promo</li>
+                    <li>• Keperluan administrasi dan pelaporan internal</li>
+                </ul>
+            </div>
+
+            <div class="glass-card p-8 rounded-[2rem] bento-item">
+                <h3 class="text-xl font-bold mb-4 flex items-center"><i data-lucide="shield-check" class="w-5 h-5 text-emerald-500 mr-3"></i> 3. Penyimpanan dan Keamanan Data</h3>
+                <p class="text-xs text-slate-500 leading-relaxed">SiAPPGO menyimpan data pengguna dengan sistem keamanan yang wajar dan sesuai standar industri. Kami membatasi akses data pribadi hanya kepada pihak yang berwenang dan membutuhkan untuk menjalankan layanan.</p>
+            </div>
+            
+            <div class="md:col-span-2 glass-card p-8 rounded-[2rem] bento-item">
+                <h3 class="text-xl font-bold mb-4 flex items-center"><i data-lucide="share-2" class="w-5 h-5 text-orange-500 mr-3"></i> 4. Pengungkapan Informasi kepada Pihak Ketiga</h3>
+                <p class="text-xs text-slate-500 mb-4">SiAPPGO tidak menjual atau menyewakan data pribadi pengguna. Kami hanya membagikan data dalam kondisi:</p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="p-3 bg-slate-50 rounded-xl text-[10px] font-bold uppercase text-slate-600 text-center">Mitra Resmi</div>
+                    <div class="p-3 bg-slate-50 rounded-xl text-[10px] font-bold uppercase text-slate-600 text-center">Kewajiban Hukum</div>
+                    <div class="p-3 bg-slate-50 rounded-xl text-[10px] font-bold uppercase text-slate-600 text-center">Persetujuan Pengguna</div>
+                </div>
+            </div>
+
+            <div class="md:col-span-3 bg-slate-900 rounded-[2.5rem] p-8 md:p-12 text-white relative overflow-hidden bento-item">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-blue-600/30 blur-[100px]"></div>
+                <div class="relative z-10 space-y-6">
+                    <h2 class="text-3xl font-extrabold leading-tight">5. Ketentuan Khusus Layanan EDC</h2>
+                    <p class="text-slate-400 text-sm">Layanan EDC melalui SiAPPGO merupakan sistem perbankan resmi yang terhubung dengan Nobu Bank melalui PT Multi Pembayaran Nasional selaku Merchant Service Provider (MSP).</p>
+                    <div class="grid md:grid-cols-3 gap-6 text-xs text-slate-300">
+                        <div class="p-4 bg-white/5 rounded-2xl border border-white/10">SiAPPGO bertindak sebagai mitra resmi PT Multi Pembayaran Nasional.</div>
+                        <div class="p-4 bg-white/5 rounded-2xl border border-white/10">Data transaksi EDC dikelola sesuai standar keamanan perbankan.</div>
+                        <div class="p-4 bg-white/5 rounded-2xl border border-white/10">Informasi transaksi EDC berada dalam lingkup sistem perbankan.</div>
+                    </div>
+                    <p class="text-xs italic text-blue-400">SiAPPGO tidak menyimpan data sensitif perbankan seperti PIN kartu atau nomor kartu secara lengkap.</p>
+                </div>
+            </div>
+
+            <div class="glass-card p-8 rounded-[2rem] bento-item">
+                <h2 class="text-xl font-bold mb-4">6. Hak Pengguna</h2>
+                <ul class="text-xs text-slate-500 space-y-2">
+                    <li>• Mengakses dan memperbarui data</li>
+                    <li>• Meminta koreksi data tidak akurat</li>
+                    <li>• Mengajukan pertanyaan/keluhan</li>
+                </ul>
+            </div>
+
+            <div class="md:col-span-2 glass-card p-8 rounded-[2rem] bento-item border-2 border-red-50">
+                <h2 class="text-xl font-bold text-red-600 mb-4 flex items-center"><i data-lucide="user-x" class="w-5 h-5 mr-3"></i> 7. Penghapusan Akun dan Data</h2>
+                <div class="space-y-4 text-[11px] text-slate-600">
+                    <p><strong>Mekanisme:</strong> Menu Akun → Hapus Akun melalui aplikasi.</p>
+                    <p><strong>Perhatian:</strong> Pastikan sisa saldo/bonus. Penghapusan bersifat permanen, saldo hangus, dan data tidak dapat dipulihkan.</p>
+                    <p><strong>Penyimpanan:</strong> Data tertentu disimpan sementara untuk kewajiban hukum atau sengketa sebelum dihapus permanen.</p>
+                </div>
+            </div>
+
+            <div class="glass-card p-8 rounded-[2rem] bento-item">
+                <h2 class="text-lg font-bold mb-2">8. Cookies</h2>
+                <p class="text-xs text-slate-500">Penggunaan cookies untuk meningkatkan pengalaman, keamanan, dan analisis aplikasi.</p>
+            </div>
+
+            <div class="glass-card p-8 rounded-[2rem] bento-item">
+                <h2 class="text-lg font-bold mb-2">9. Perubahan</h2>
+                <p class="text-xs text-slate-500">SiAPPGO dapat memperbarui kebijakan ini sewaktu-waktu melalui aplikasi atau media resmi.</p>
+            </div>
+
+            <div class="md:col-span-3 glass-card p-10 rounded-[2.5rem] border-2 border-blue-100">
+                <h2 class="text-2xl font-bold mb-8 text-center">10. Kontak Kami</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                    <div class="space-y-2">
+                        <i data-lucide="map-pin" class="w-6 h-6 mx-auto text-blue-600"></i>
+                        <p class="text-[10px] font-bold uppercase text-slate-900">Operational Office</p>
+                        <p class="text-xs text-slate-500">Tengin Baru, Sepaku District, IKN Nusantara</p>
+                    </div>
+                    <div class="space-y-2">
+                        <i data-lucide="message-circle" class="w-6 h-6 mx-auto text-blue-600"></i>
+                        <p class="text-[10px] font-bold uppercase text-slate-900">WhatsApp</p>
+                        <p class="text-xs text-slate-500">+62 822-2666-6610</p>
+                    </div>
+                    <div class="space-y-2">
+                        <i data-lucide="mail" class="w-6 h-6 mx-auto text-blue-600"></i>
+                        <p class="text-[10px] font-bold uppercase text-slate-900">Email</p>
+                        <p class="text-xs text-slate-500">siappgo.ikn@gmail.com</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="mt-16 text-center text-slate-400 text-[10px] font-bold uppercase tracking-widest">
+            &copy; 2026 SiAPPGO. Seluruh Hak Dilindungi.
         </footer>
-
     </div>
 
     <script>

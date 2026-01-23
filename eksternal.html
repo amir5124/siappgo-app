@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight App Engine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://rtsindonesia.biz.id/app-logic.js"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+
+        .modal-bottom {
+            animation: slide-up 0.2s ease-out;
+        }
+
+        @keyframes slide-up {
+            from {
+                transform: translateY(100%)
+            }
+
+            to {
+                transform: translateY(0)
+            }
+        }
+
+        .custom-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .dot-pulse {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background-color: #0194f3;
+            border-radius: 50%;
+            animation: wave 1.2s infinite ease-in-out;
+        }
+
+        .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes wave {
+
+            0%,
+            60%,
+            100% {
+                transform: translateY(0)
+            }
+
+            30% {
+                transform: translateY(-10px)
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div x-data="flightApp()" x-init="init()">
+
+        <div x-show="loading" x-cloak
+            class="fixed inset-0 bg-white/95 flex flex-col items-center justify-center z-[200] font-bold text-center p-6">
+            <div class="dot-pulse mb-4">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+            <p class="text-[#0194f3] uppercase tracking-widest text-[10px] font-black" x-text="loadingText"></p>
+        </div>
+
+        <div x-show="toast.show" x-cloak x-transition:enter="transition ease-out duration-300"
+            class="fixed bottom-10 left-1/2 -translate-x-1/2 z-[300] w-[90%] max-w-sm">
+            <div :class="toast.type === 'error' ? 'bg-red-600' : 'bg-slate-800'"
+                class="text-white px-4 py-3 rounded-lg shadow-2xl flex items-center gap-3">
+                <i :data-lucide="toast.type === 'error' ? 'alert-circle' : 'info'" class="w-5 h-5"></i>
+                <span class="text-sm font-medium" x-text="toast.message"></span>
+            </div>
+        </div>
+
+        <div class="max-w-md mx-auto bg-white min-h-screen shadow-2xl relative pb-10">
+
+            <div x-show="step === 'search'"
+                class="bg-[#e9f4f9] p-3 flex justify-between items-center text-[11px] font-semibold border-b tracking-tight">
+                <div class="flex-1 text-blue-900 leading-tight">
+                    <span class="font-bold">Ambil diskon 8%!</span><br>
+                    <span class="text-gray-600 italic text-[10px]">Gunakan kode <span
+                            class="font-bold text-blue-600 uppercase">Jalanyuk</span></span>
+                </div>
+                <button class="bg-[#0194f3] text-white px-3 py-1.5 rounded-full font-bold shadow-sm">Download</button>
+            </div>
+            <div x-show="step === 'search'" x-cloak class="p-4">
+                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-5 space-y-5">
+                    <h1 class="text-xl font-black text-slate-800 leading-tight tracking-tighter">Tiket Pesawat</h1>
+                    <div class="flex bg-slate-100 p-1 rounded-xl">
+                        <button @click="setTripType('OneWay')"
+                            :class="search.tripType === 'OneWay' ? 'bg-white text-[#0194f3] shadow-sm' : 'text-slate-500'"
+                            class="flex-1 py-2 rounded-lg text-xs font-bold transition-all uppercase tracking-widest">
+                            Sekali Jalan</button><button @click="setTripType('RoundTrip')"
+                            :class="search.tripType === 'RoundTrip' ? 'bg-white text-[#0194f3] shadow-sm' : 'text-slate-500'"
+                            class="flex-1 py-2 rounded-lg text-xs font-bold transition-all uppercase tracking-widest">
+                            Pulang Pergi
+                        </button>
+                    </div>
+                    <div class="flex-1">
+                        <label class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.15em] block mb-2 ml-1">
+                            Maskapai Favorit
+                        </label>
+                        <div class="relative group">
+                            <div
+                                class="absolute left-3 top-1/2 -translate-y-1/2 text-[#0194f3] group-focus-within:scale-110 transition-transform duration-300">
+                                <i data-lucide="plane" class="w-4 h-4"></i>
+                            </div>
+                            <select x-model="search.airlineID"
+                                class="w-full bg-slate-50 border border-slate-100 rounded-xl py-3 pl-10 pr-10 font-bold text-slate-700 text-sm outline-none appearance-none cursor-pointer transition-all shadow-sm">
+                                <option value="">Semua Maskapai</option>
+                                <template x-for="airline in airlines" :key="airline.id">
+                                    <option :value="airline.id" x-text="airline.name"></option>
+                                </template>
+                            </select>
+                            <div
+                                class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
+                                <span
+                                    class="text-[9px] bg-blue-50 text-[#0194f3] px-1.5 py-0.5 rounded-md font-bold border border-blue-100"
+                                    x-text="airlines.length"></span><i data-lucide="chevron-down"
+                                    class="w-4 h-4 text-slate-400"></i>
+                            </div>
+                        </div>
+                        <p class="text-[8px] text-slate-400 mt-1.5 ml-1 italic" x-show="airlines.length > 0">
+                            *Tersedia <span class="text-blue-500 font-bold" x-text="airlines.length"></span> pilihan
+                            maskapai
+                            partner
+                        </p>
+                    </div>
+                    <div class="relative grid grid-cols-1 border rounded-2xl overflow-hidden bg-slate-50/50">
+                        <div @click="openModal('route', 'origin')"
+                            class="p-4 border-b cursor-pointer active:bg-blue-50 flex items-center gap-4 transition-colors group">
+                            <i data-lucide="plane-takeoff"
+                                class="w-5 h-5 text-blue-500 group-hover:scale-110 transition-transform"></i>
+                            <div class="flex-1">
+                                <div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Dari</div>
+                                <div class="font-black text-slate-700 text-sm"
+                                    x-text="search.originName || 'Pilih Kota Keberangkatan'"></div>
+                            </div>
+                        </div>
+                        <div @click="openModal('route', 'destination')"
+                            class="p-4 cursor-pointer active:bg-blue-50 flex items-center gap-4 transition-colors group">
+                            <i data-lucide="plane-landing"
+                                class="w-5 h-5 text-orange-500 group-hover:scale-110 transition-transform"></i>
+                            <div class="flex-1">
+                                <div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Ke</div>
+                                <div class="font-black text-slate-700 text-sm"
+                                    x-text="search.destinationName || 'Pilih Kota Tujuan'"></div>
+                            </div>
+                        </div>
+                        <button @click="swapRoute"
+                            class="absolute right-6 top-1/2 -translate-y-1/2 z-10 bg-white border border-slate-200 rounded-full p-2.5 shadow-lg active:scale-90 transition-all">
+                            <i data-lucide="arrow-up-down" class="w-4 h-4 text-[#0194f3]"></i>
+                        </button>
+                    </div>
+                    <div class="grid gap-3" :class="search.tripType === 'RoundTrip' ? 'grid-cols-2' : 'grid-cols-1'">
+                        <div @click="openModal('calendar', 'depart')"
+                            class="p-4 border rounded-2xl cursor-pointer bg-white flex items-center gap-3 shadow-sm hover:border-blue-300 transition-all">
+                            <i data-lucide="calendar" class="w-5 h-5 text-[#0194f3]"></i>
+                            <div>
+                                <div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Pergi</div>
+                                <div class="text-xs font-black text-slate-800"
+                                    x-text="search.departDateLabel || 'Pilih Tanggal'"></div>
+                            </div>
+                        </div>
+                        <div x-show="search.tripType === 'RoundTrip'"
+                            x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0 transform scale-95"
+                            x-transition:enter-end="opacity-100 transform scale-100"
+                            @click="openModal('calendar', 'return')"
+                            class="p-4 border rounded-2xl cursor-pointer bg-white flex items-center gap-3 shadow-sm hover:border-blue-300 transition-all">
+                            <i data-lucide="calendar-days" class="w-5 h-5"
+                                :class="search.returnDate ? 'text-blue-500' : 'text-slate-300'"></i>
+                            <div>
+                                <div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Pulang</div>
+                                <div class="text-xs font-black"
+                                    :class="search.returnDate ? 'text-slate-800' : 'text-slate-300'"
+                                    x-text="search.returnDateLabel || 'Kapan Balik?'"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div @click="openModal('pax')"
+                        class="p-4 border rounded-2xl cursor-pointer bg-white flex items-center gap-4 shadow-sm hover:border-blue-300 transition-all">
+                        <div class="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center">
+                            <i data-lucide="users" class="w-5 h-5 text-slate-400"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Penumpang</div>
+                            <div class="text-xs font-black text-slate-800" x-text="paxSummary()"></div>
+                        </div>
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+                    </div>
+                    <button @click="searchFlights"
+                        class="w-full bg-[#ff5e1f] text-white py-4 rounded-2xl font-black text-sm shadow-xl shadow-orange-100 hover:brightness-110 active:scale-[0.98] transition-all uppercase tracking-[0.2em]">
+                        Cari Tiket Sekarang
+                    </button>
+                </div>
+            </div>
+            <div x-show="step === 'list'" x-cloak class="min-h-screen bg-slate-50 pb-10">
+                <div class="bg-[#0194f3] sticky top-0 z-50 shadow-md">
+                    <div class="p-4 text-white flex items-center gap-4">
+                        <button
+                            @click="viewMode === 'return' ? (viewMode = 'depart', selectedFlight = null) : (step = 'search')"
+                            class="p-1">
+                            <i data-lucide="arrow-left" class="w-6 h-6"></i>
+                        </button>
+                        <div class="flex-1">
+                            <div class="font-bold text-sm"
+                                x-text="viewMode === 'depart' ? search.origin + ' - ' + search.destination : search.destination + ' - ' + search.origin">
+                            </div>
+                            <div class="text-[11px] opacity-90"
+                                x-text="formatDate(viewMode === 'depart' ? search.departDate : search.returnDate) + ', ' + (parseInt(paxCount.adult) + parseInt(paxCount.child)) + ' Penumpang'">
+                            </div>
+                        </div>
+                        <button @click="step = 'search'"
+                            class="text-xs font-bold px-3 py-1 bg-white/20 rounded-lg active:bg-white/40 transition-colors">
+                            Ubah
+                        </button>
+                    </div>
+                    <div class="bg-white p-3 flex gap-2 overflow-x-auto no-scrollbar border-b border-slate-100">
+                        <button @click="filterTransit = 'all'"
+                            :class="filterTransit === 'all' ? 'bg-[#0194f3] text-white shadow-md' : 'bg-slate-100 text-slate-600'"
+                            class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all">
+                            <i data-lucide="layers" class="w-3.5 h-3.5"></i><span>Semua</span></button><button
+                            @click="filterTransit = 'direct'"
+                            :class="filterTransit === 'direct' ? 'bg-[#0194f3] text-white shadow-md' : 'bg-slate-100 text-slate-600'"
+                            class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all">
+                            <i data-lucide="zap" class="w-3.5 h-3.5"></i><span>Langsung</span></button><button
+                            @click="filterTransit = 'transit'"
+                            :class="filterTransit === 'transit' ? 'bg-[#0194f3] text-white shadow-md' : 'bg-slate-100 text-slate-600'"
+                            class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all">
+                            <i data-lucide="git-branch" class="w-3.5 h-3.5"></i><span>Transit</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="px-4 mt-4 space-y-3">
+                    <template x-for="f in filteredFlights()" :key="f.journeyReference || Math.random()">
+                        <div @click="selectFlight(f)"
+                            class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 active:bg-slate-50 transition-all cursor-pointer relative overflow-hidden">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-10 h-10 bg-zinc-100 rounded-xl flex items-center justify-center border border-zinc-200/50 shadow-sm">
+                                        <span class="text-zinc-600 font-black text-[11px] uppercase tracking-tighter"
+                                            x-text="f.airlineID || f.segment[0].flightDetail[0].airlineCode"></span>
+                                    </div>
+                                    <div>
+                                        <div class="font-bold text-slate-700 text-sm flex items-center gap-1 uppercase">
+                                            <span
+                                                x-text="getAirlineName(f.airlineID || f.segment[0].flightDetail[0].airlineCode)"></span><span
+                                                class="text-slate-400 font-medium text-[10px]"
+                                                x-text="'(' + (f.airlineID || f.segment[0].flightDetail[0].airlineCode) + ')'"></span>
+                                        </div>
+                                        <div class="text-[10px] text-slate-400 font-medium uppercase"
+                                            x-text="f.segment.map(s => s.flightDetail[0].flightNumber).join(' / ')">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-[10px] font-black uppercase px-2 py-1 rounded"
+                                    :class="(f.segment.length > 1 || f.segment[0].flightDetail.length > 1) ? 'bg-orange-50 text-orange-500' : 'bg-emerald-50 text-emerald-500'"
+                                    x-text="getTransitInfo(f)"></div>
+                            </div>
+                            <div class="flex items-center justify-between gap-4">
+                                <div class="flex-1 flex items-center gap-3">
+                                    <div class="text-left w-14">
+                                        <div class="font-black text-base text-slate-800"
+                                            x-text="f.jiDepartTime.split('T')[1].substring(0,5)"></div>
+                                        <div class="text-[10px] font-bold text-slate-400 uppercase" x-text="f.jiOrigin">
+                                        </div>
+                                    </div>
+                                    <div class="flex-1 flex flex-col items-center relative">
+                                        <span class="text-[8px] text-slate-300 font-bold uppercase mb-1"
+                                            x-text="calculateDuration(f.jiDepartTime, f.jiArrivalTime)"></span>
+                                        <div class="w-full flex items-center">
+                                            <div class="w-1.5 h-1.5 rounded-full border border-slate-300 bg-white">
+                                            </div>
+                                            <div
+                                                class="flex-1 h-[1.5px] bg-slate-200 relative flex items-center justify-center">
+                                                <template
+                                                    x-if="f.segment.length > 1 || f.segment[0].flightDetail.length > 1">
+                                                    <div class="flex justify-center items-center w-full absolute">
+                                                        <div
+                                                            class="w-2.5 h-2.5 bg-orange-500 rounded-full border-2 border-white shadow-sm ring-2 ring-orange-50">
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                            <div class="w-1.5 h-1.5 rounded-full bg-slate-400"></div>
+                                        </div>
+                                        <template x-if="f.segment.length > 1 || f.segment[0].flightDetail.length > 1">
+                                            <div class="mt-1 text-center">
+                                                <span
+                                                    class="text-[9px] text-orange-500 font-black uppercase tracking-tighter"
+                                                    x-text="'Via ' + (f.segment.length > 1 ? f.segment[0].flightDetail[0].fdDestination : f.segment[0].flightDetail[0].fdDestination)"></span>
+                                            </div>
+                                        </template><template
+                                            x-if="!(f.segment.length > 1 || f.segment[0].flightDetail.length > 1)"><span
+                                                class="text-[8px] text-emerald-500 font-bold mt-1 uppercase tracking-widest">Langsung</span></template>
+                                    </div>
+                                    <div class="text-right w-14">
+                                        <div class="font-black text-base text-slate-800"
+                                            x-text="f.jiArrivalTime.split('T')[1].substring(0,5)"></div>
+                                        <div class="text-[10px] font-bold text-slate-400 uppercase"
+                                            x-text="f.jiDestination"></div>
+                                    </div>
+                                </div>
+                                <div class="pl-4 border-l border-slate-100 text-right min-w-[100px]">
+                                    <div class="text-[#0194f3] font-black text-base"
+                                        x-text="(f.sumPrice || f.segment[0].availableDetail[0].price).toLocaleString('id-ID')">
+                                    </div>
+                                    <button
+                                        class="mt-1 bg-[#0194f3] text-white text-[10px] font-bold px-4 py-1.5 rounded-lg w-full active:scale-95 transition-transform">
+                                        Pilih
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    <div x-show="filteredFlights().length === 0"
+                        class="p-20 text-center flex flex-col items-center gap-3">
+                        <i data-lucide="plane-off" class="w-12 h-12 text-slate-200"></i>
+                        <p class="text-slate-400 text-sm italic">Jadwal tidak ditemukan untuk filter ini.</p>
+                    </div>
+                </div>
+            </div>
+            <div x-show="showFareModal"
+                class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 bg-black/50"
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0 translate-y-full"
+                x-transition:leave="transition ease-in duration-200" x-transition:leave-end="opacity-0 translate-y-full"
+                x-cloak>
+                <div
+                    class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+                    <div class="px-5 py-4 border-b flex justify-between items-center bg-white sticky top-0 z-10">
+                        <h3 class="font-bold text-slate-800"
+                            x-text="modalStep === 'select-class' ? 'Detail Penerbangan' : 'Rincian Pembayaran'"></h3>
+                        <button @click="showFareModal = false"
+                            class="text-slate-400 p-2 hover:bg-slate-100 rounded-full">
+                            <i data-lucide="x" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                    <div class="overflow-y-auto custom-scroll">
+                        <div x-show="modalStep === 'select-class'" class="p-6 space-y-6">
+                            <p class="font-bold text-slate-800 text-sm">Pilih Kelas</p>
+                            <div class="divide-y divide-slate-100 border-t border-slate-100">
+                                <template x-for="(fare, index) in tempFareList" :key="index"><label
+                                        @click="selectedFareIndex = index"
+                                        class="flex items-center justify-between py-5 cursor-pointer group"><span
+                                            class="text-base font-medium text-slate-700"
+                                            x-text="fare.flightClass + ' (' + getClassName(fare.flightClass) + ')'"></span>
+                                        <div class="w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all"
+                                            :class="selectedFareIndex === index ? 'border-[#0194f3]' : 'border-slate-200 bg-slate-100'">
+                                            <div x-show="selectedFareIndex === index"
+                                                class="w-4 h-4 rounded-full bg-[#0194f3]"></div>
+                                        </div>
+                                    </label></template>
+                            </div>
+                            <div class="pt-6">
+                                <button @click="processToPriceDetail()" :disabled="loading"
+                                    class="w-full bg-[#0194f3] text-white py-4 rounded-xl font-bold text-sm shadow-lg active:scale-95 transition-all disabled:opacity-50">
+                                    <span x-show="!loading">Pilih Penerbangan</span><span x-show="loading"
+                                        class="flex items-center justify-center gap-2"><svg
+                                            class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                                stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor"
+                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                            </path>
+                                        </svg>
+                                        Mohon tunggu...
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                        <div x-show="modalStep === 'detail-price'"
+                            class="p-6 space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                            <div
+                                class="bg-blue-50/50 rounded-2xl p-4 border border-blue-100 flex items-center justify-between">
+                                <div>
+                                    <p class="text-[10px] font-black text-blue-600 uppercase tracking-widest">Rute
+                                        Dipilih</p>
+                                    <p class="text-sm font-bold text-slate-800"
+                                        x-text="targetFlight?.jiOrigin + ' â†’ ' + targetFlight?.jiDestination"></p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-[10px] font-black text-blue-600 uppercase tracking-widest">Kelas</p>
+                                    <p class="text-sm font-bold text-slate-800"
+                                        x-text="targetFlight?.chosenFare?.flightClass + ' - ' + getClassName(targetFlight?.chosenFare?.flightClass)">
+                                    </p>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-800 mb-4">Rincian Pembayaran</p>
+                                <div class="space-y-4 bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-slate-500 font-medium">Harga Tiket</span><span
+                                            class="font-black text-slate-800"
+                                            x-text="'Rp ' + (currentPriceDetail?.baseFare || 0).toLocaleString('id-ID')"></span>
+                                    </div>
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-slate-500 font-medium">Pajak & Biaya Bandara</span><span
+                                            class="font-black text-slate-800"
+                                            x-text="'Rp ' + (currentPriceDetail?.tax || 0).toLocaleString('id-ID')"></span>
+                                    </div>
+                                    <div
+                                        class="flex justify-between items-center py-2 px-3 bg-purple-50 rounded-xl border border-purple-100/50">
+                                        <div class="flex items-center gap-2">
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center shadow-sm shadow-purple-200">
+                                                <i data-lucide="zap" class="w-3.5 h-3.5 text-white"></i>
+                                            </div>
+                                            <span
+                                                class="text-[11px] font-bold text-purple-700 uppercase tracking-tight">Dapatkan
+                                                Diskon</span>
+                                        </div>
+                                        <span class="text-sm font-black text-purple-700"
+                                            x-text="'- Rp ' + Math.floor((bookingDetail.adminFee?.ticketPrice - bookingDetail.adminFee?.salesPrice) * 0.5).toLocaleString('id-ID')"></span>
+                                    </div>
+                                    <div class="pt-4 border-t border-dashed flex justify-between items-center">
+                                        <div class="flex flex-col">
+                                            <span class="text-base font-bold text-slate-800">Total Bayar</span><span
+                                                class="text-[10px] text-slate-400 font-medium italic">*Sudah termasuk
+                                                pajak & biaya bandara</span>
+                                        </div>
+                                        <span class="text-base font-bold text-[#0194f3] tracking-tighter"
+                                            x-text="'Rp ' + (currentPriceDetail?.totalFare || 0).toLocaleString('id-ID')"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex gap-3 pt-2">
+                                <button @click="modalStep = 'select-class'"
+                                    class="flex-1 bg-slate-100 text-slate-600 py-4 rounded-xl font-bold text-sm">
+                                    Kembali</button><button @click="confirmFareSelection()"
+                                    class="flex-[2] bg-[#0194f3] text-white py-4 rounded-xl font-bold text-sm shadow-blue-100 shadow-lg active:scale-95 transition-all">
+                                    Lanjutkan Booking
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div x-show="step === 'passenger'" x-cloak class="min-h-screen bg-slate-50">
+                <div
+                    class="fixed top-0 left-0 right-0 z-50 bg-[#0194f3] text-white shadow-lg p-4 flex items-center gap-4">
+                    <button @click="step = 'search'" class="hover:bg-white/20 p-1 rounded-full transition-colors">
+                        <i data-lucide="arrow-left" class="w-6 h-6 text-white"></i>
+                    </button>
+                    <div>
+                        <h2 class="text-lg font-bold uppercase tracking-tight leading-none">Detail Penumpang</h2>
+                        <p class="text-[10px] opacity-80 font-medium uppercase tracking-widest mt-1">
+                            Lengkapi data sesuai KTP/Passport
+                        </p>
+                    </div>
+                </div>
+                <div class="p-4 pt-20 space-y-4 pb-32">
+                    <div class="bg-white border rounded-xl p-4 shadow-sm space-y-4 text-sm">
+                        <div class="flex items-center gap-2 border-b pb-2">
+                            <i data-lucide="mail" class="w-4 h-4 text-[#0194f3]"></i>
+                            <h3 class="font-bold text-[#0194f3] tracking-widest uppercase text-[10px]">Informasi Kontak
+                            </h3>
+                        </div>
+                        <input type="email" x-model="contactData.email" placeholder="Email (E-Tiket dikirim ke sini)"
+                            class="w-full p-3 border border-slate-200 rounded-lg outline-none focus:border-[#0194f3] transition-all" />
+                        <div class="flex gap-2">
+                            <div
+                                class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-bold flex items-center gap-2 text-sm shadow-sm">
+                                <span>ðŸ‡®ðŸ‡©</span><span>+62</span>
+                            </div>
+                            <input type="tel" x-model="contactData.phone"
+                                @input="contactData.phone = contactData.phone.replace(/^0+/, '')"
+                                placeholder="812xxxxxxx"
+                                class="flex-1 p-3 border border-slate-200 rounded-lg outline-none focus:border-[#0194f3] tracking-widest font-semibold transition-all" />
+                        </div>
+                        <p class="text-[10px] text-gray-400 mt-1 italic leading-relaxed">
+                            *Nomor handphone akan digunakan untuk pengiriman info jadwal penerbangan.
+                        </p>
+                    </div>
+                    <template x-for="(p, index) in passengers" :key="index">
+                        <div
+                            class="bg-white border rounded-xl p-4 shadow-sm space-y-4 text-sm relative overflow-hidden">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-[#0194f3]"></div>
+                            <div class="flex items-center gap-2 border-b pb-2">
+                                <i data-lucide="user" class="w-4 h-4 text-[#0194f3]"></i>
+                                <h3 class="font-bold text-[#0194f3] tracking-widest uppercase text-[10px]"
+                                    x-text="'Data Penumpang ' + (index + 1) + ' (' + p.typeLabel + ')'"></h3>
+                            </div>
+                            <div class="flex gap-2">
+                                <select x-model="p.title"
+                                    class="w-24 p-3 border border-slate-200 rounded-lg bg-slate-50 outline-none font-bold text-xs focus:border-[#0194f3]">
+                                    <option value="MR">Tn.</option>
+                                    <option value="MS">Ny.</option>
+                                    <option value="MRS">Nn.</option>
+                                    <option value="MSTR">Anak (Laki-laki)</option>
+                                    <option value="MISS">Anak (Perempuan)</option>
+                                </select><input type="text" x-model="p.firstName" placeholder="Nama Depan"
+                                    class="flex-1 p-3 border border-slate-200 rounded-lg outline-none uppercase font-bold min-w-0 focus:border-[#0194f3]" />
+                            </div>
+                            <input type="text" x-model="p.lastName" placeholder="Nama Belakang"
+                                class="w-full p-3 border border-slate-200 rounded-lg outline-none uppercase font-bold focus:border-[#0194f3]" /><input
+                                type="text" x-model="p.IDNumber" placeholder="NIK / No KTP"
+                                class="w-full p-3 border border-slate-200 rounded-lg outline-none tracking-widest focus:border-[#0194f3]" />
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="text-[8px] font-bold text-gray-400 mb-1 block">TANGGAL
+                                        LAHIR</label><input type="date" x-model="p.birthDate"
+                                        class="w-full p-2 border border-slate-200 rounded-lg bg-slate-50 text-xs font-bold focus:border-[#0194f3]" />
+                                </div>
+                                <div>
+                                    <label class="text-[8px] font-bold text-gray-400 mb-1 block">GENDER</label><select
+                                        x-model="p.gender"
+                                        class="w-full p-2 border border-slate-200 rounded-lg bg-slate-50 text-xs font-bold focus:border-[#0194f3]">
+                                        <option value="Male">Pria</option>
+                                        <option value="Female">Wanita</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    <div class="space-y-3">
+                        <button @click="step = 'review'"
+                            class="w-full bg-[#0194f3] text-white py-4 rounded-xl font-black shadow-lg shadow-blue-200 uppercase tracking-widest text-sm active:scale-95 transition-transform flex justify-center items-center gap-2">
+                            <span>Selesai</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div x-show="step === 'addons'" x-cloak class="min-h-screen bg-slate-50">
+                <div
+                    class="fixed top-0 left-0 right-0 z-50 bg-[#0194f3] text-white shadow-lg p-4 flex items-center gap-4">
+                    <button @click="step = 'passenger'" class="hover:bg-white/20 p-1 rounded-full transition-colors">
+                        <i data-lucide="arrow-left" class="w-6 h-6 text-white"></i>
+                    </button>
+                    <div>
+                        <h2 class="text-lg font-bold uppercase tracking-tight leading-none text-white">Layanan Tambahan
+                        </h2>
+                        <p class="text-[10px] opacity-80 font-medium uppercase tracking-widest mt-1 text-white">
+                            Pilih Bagasi & Makanan
+                        </p>
+                    </div>
+                </div>
+                <div class="p-4 pt-20 pb-32">
+                    <template x-if="addonsData">
+                        <div class="space-y-6">
+                            <template x-for="(segment, sIdx) in addonsData" :key="sIdx">
+                                <div class="mb-6 bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+                                    <div class="bg-slate-900 p-3 text-white flex items-center gap-2">
+                                        <div class="bg-blue-500 rounded-lg p-1">
+                                            <i :data-lucide="sIdx === 0 ? 'plane-takeoff' : 'plane-landing'"
+                                                class="w-3 h-3 text-white"></i>
+                                        </div>
+                                        <span class="text-[10px] font-black uppercase tracking-widest"
+                                            x-text="(sIdx === 0 ? 'KEBERANGKATAN: ' : 'KEPULANGAN: ') + segment.origin + ' â†’ ' + segment.destination"></span>
+                                    </div>
+                                    <div class="p-4 space-y-6">
+                                        <template x-for="(pax, pIdx) in passengers" :key="pIdx">
+                                            <div class="border-b last:border-0 pb-6 last:pb-0">
+                                                <div class="flex items-center justify-between mb-4">
+                                                    <div class="flex items-center gap-2">
+                                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-[10px] font-bold text-blue-600"
+                                                            x-text="pIdx + 1"></div>
+                                                        <div class="flex flex-col">
+                                                            <p class="font-bold text-sm text-slate-800 uppercase"
+                                                                x-text="pax.firstName + ' ' + (pax.lastName || '')"></p>
+                                                            <span
+                                                                class="text-[8px] font-black uppercase tracking-tighter"
+                                                                :class="parseInt(pax.type) === 2 ? 'text-orange-500' : 'text-slate-400'"
+                                                                x-text="parseInt(pax.type) === 0 ? 'Dewasa' : (parseInt(pax.type) === 1 ? 'Anak' : 'Bayi (Infant)')"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <template x-if="parseInt(pax.type) !== 2">
+                                                    <div class="grid grid-cols-1 gap-5">
+                                                        <template
+                                                            x-if="segment.baggageInfos && segment.baggageInfos.length > 0">
+                                                            <div>
+                                                                <label
+                                                                    class="text-[9px] font-black text-slate-400 uppercase mb-1.5 block flex items-center gap-1"><i
+                                                                        data-lucide="briefcase" class="w-2.5 h-2.5"></i>
+                                                                    Berat
+                                                                    Bagasi Tambahan </label><select
+                                                                    x-model="selectedBaggage[pIdx + '_' + sIdx]"
+                                                                    class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs font-bold focus:ring-2 focus:ring-blue-500 outline-none appearance-none">
+                                                                    <option value="">Tanpa Bagasi Tambahan</option>
+                                                                    <template x-for="bag in segment.baggageInfos"
+                                                                        :key="bag.code">
+                                                                        <option :value="bag.code"
+                                                                            x-text="bag.desc + ' (+Rp ' + bag.fare.toLocaleString('id-ID') + ')'">
+                                                                        </option>
+                                                                    </template>
+                                                                </select>
+                                                            </div>
+                                                        </template><template
+                                                            x-if="segment.mealInfos && segment.mealInfos.length > 0">
+                                                            <div>
+                                                                <label
+                                                                    class="text-[9px] font-black text-slate-400 uppercase mb-2 block flex items-center gap-1"><i
+                                                                        data-lucide="utensils" class="w-2.5 h-2.5"></i>
+                                                                    Menu
+                                                                    Makanan Spesial
+                                                                </label>
+                                                                <div class="grid grid-cols-1 gap-2">
+                                                                    <template x-for="meal in segment.mealInfos"
+                                                                        :key="meal.code">
+                                                                        <div @click="toggleMeal(pIdx, sIdx, meal.code)"
+                                                                            :class="selectedMeals[pIdx + '_' + sIdx]?.includes(meal.code) ? 'border-blue-500 bg-blue-50' : 'border-slate-100 bg-slate-50'"
+                                                                            class="flex justify-between items-center p-3 rounded-xl border-2 cursor-pointer transition-all active:scale-[0.98]">
+                                                                            <div class="flex items-center gap-3">
+                                                                                <div :class="selectedMeals[pIdx + '_' + sIdx]?.includes(meal.code) ? 'bg-blue-600 border-blue-600' : 'bg-white border-slate-300'"
+                                                                                    class="w-4 h-4 border rounded flex items-center justify-center">
+                                                                                    <i data-lucide="check"
+                                                                                        class="w-3 h-3 text-white"
+                                                                                        x-show="selectedMeals[pIdx + '_' + sIdx]?.includes(meal.code)"></i>
+                                                                                </div>
+                                                                                <div>
+                                                                                    <p class="text-xs font-bold text-slate-700"
+                                                                                        x-text="meal.desc"></p>
+                                                                                    <p class="text-[10px] text-blue-600 font-black"
+                                                                                        x-text="meal.fare > 0 ? '+ Rp ' + meal.fare.toLocaleString('id-ID') : 'Gratis'">
+                                                                                    </p>
+                                                                                </div>
+                                                                            </div>
+                                                                            <i data-lucide="chevron-right"
+                                                                                class="w-3 h-3 text-slate-300"></i>
+                                                                        </div>
+                                                                    </template>
+                                                                </div>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                </template><template x-if="parseInt(pax.type) === 2">
+                                                    <div class="p-3 bg-orange-50 border border-orange-100 rounded-xl">
+                                                        <p
+                                                            class="text-[10px] text-orange-600 font-medium italic flex items-center gap-2">
+                                                            <i data-lucide="info" class="w-3 h-3"></i> Bayi tidak
+                                                            mendapatkan
+                                                            jatah bagasi tambahan atau menu makanan sendiri.
+                                                        </p>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+                <div
+                    class="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-slate-100 shadow-[0_-10px_20px_rgba(0,0,0,0.05)] z-40">
+                    <button @click="goToSeats()"
+                        class="w-full bg-[#0194f3] text-white py-4 rounded-xl font-black shadow-lg shadow-blue-100 uppercase tracking-widest text-sm active:scale-95 transition-all flex items-center justify-center gap-2">
+                        <span>Lanjut Pilih Kursi</span><i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+            <div x-show="step === 'seats'" x-cloak class="min-h-screen bg-slate-50">
+                <div
+                    class="fixed top-0 left-0 right-0 z-50 bg-[#0194f3] text-white shadow-lg p-4 flex items-center gap-4">
+                    <button @click="step = 'addons'" class="hover:bg-white/20 p-1 rounded-full">
+                        <i data-lucide="arrow-left" class="w-6 h-6"></i>
+                    </button>
+                    <div>
+                        <h2 class="text-lg font-bold uppercase text-white">Pilih Kursi</h2>
+                        <p class="text-[10px] opacity-80 font-medium uppercase text-white"
+                            x-text="activeSeatSegment === 0 ? 'Penerbangan Pergi' : 'Penerbangan Pulang'"></p>
+                    </div>
+                </div>
+                <div class="p-4 pt-20 pb-40 space-y-4 max-w-md mx-auto">
+                    <template x-if="search.tripType === 'RoundTrip'">
+                        <div class="flex bg-white p-1 rounded-2xl border border-slate-100 shadow-sm">
+                            <button @click="switchSeatSegment(0)"
+                                :class="activeSeatSegment === 0 ? 'bg-[#0194f3] text-white' : 'text-slate-400'"
+                                class="flex-1 py-3 rounded-xl text-[10px] font-black uppercase transition-all">
+                                Pergi</button><button @click="switchSeatSegment(1)"
+                                :class="activeSeatSegment === 1 ? 'bg-orange-500 text-white' : 'text-slate-400'"
+                                class="flex-1 py-3 rounded-xl text-[10px] font-black uppercase transition-all">
+                                Pulang
+                            </button>
+                        </div>
+                    </template>
+                    <div class="flex gap-2 overflow-x-auto pb-2 custom-scroll">
+                        <template x-for="(pax, index) in passengers" :key="index"><button
+                                @click="activePaxIndex = index"
+                                :class="activePaxIndex === index ? 'bg-blue-600 text-white border-blue-700' : 'bg-white text-slate-500 border-slate-200'"
+                                class="px-4 py-2 rounded-full text-[10px] font-bold border flex items-center gap-2">
+                                <span x-text="pax.firstName"></span><span
+                                    class="bg-black/10 px-1.5 py-0.5 rounded text-[9px]"
+                                    x-text="pax.selectedSeats?.[activeSeatSegment] || '-'"></span></button></template>
+                    </div>
+                    <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm relative">
+                        <div class="grid grid-cols-7 gap-2 mb-2">
+                            <template x-for="label in ['A','B','C']">
+                                <div class="text-center text-[10px] font-bold text-slate-400" x-text="label"></div>
+                            </template>
+                            <div class="text-center text-[10px] font-bold text-slate-300">#</div>
+                            <template x-for="label in ['D','E','F']">
+                                <div class="text-center text-[10px] font-bold text-slate-400" x-text="label"></div>
+                            </template>
+                        </div>
+                        <div class="grid grid-cols-7 gap-2">
+                            <template x-for="s in seatMap" :key="s.seatDesignator">
+                                <div class="contents">
+                                    <template x-if="s.assignable"><button @click="assignSeat(s.seatDesignator)"
+                                            :disabled="!s.isOpen"
+                                            :class="[ passengers[activePaxIndex].selectedSeats?.[activeSeatSegment] === s.seatDesignator ? 'bg-blue-600 text-white border-blue-700 shadow-md' : '', !s.isOpen ? 'bg-slate-100 text-slate-300 cursor-not-allowed border-none' : 'bg-white text-slate-700 border-slate-200' ]"
+                                            class="h-10 w-full flex flex-col items-center justify-center rounded-lg border text-[9px] font-black transition-all">
+                                            <span x-text="s.seatDesignator"></span><template
+                                                x-if="s.seatPrice > 0"><span class="text-[6px] opacity-70"
+                                                    x-text="Math.round(s.seatPrice/1000) + 'k'"></span></template></button></template><template
+                                        x-if="!s.assignable">
+                                        <div class="h-10 w-full flex items-center justify-center text-[9px] font-bold text-slate-300"
+                                            x-text="s.seatText"></div>
+                                    </template>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    class="fixed bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur-md border-t flex flex-col gap-3 shadow-lg z-40">
+                    <div class="flex justify-between items-center px-2">
+                        <div class="flex flex-col">
+                            <span class="text-[9px] text-slate-400 font-bold uppercase">Penumpang Aktif:</span><span
+                                class="text-xs font-black text-slate-800 uppercase"
+                                x-text="passengers[activePaxIndex].firstName"></span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[9px] text-slate-400 font-bold uppercase block">Nomor Kursi:</span><span
+                                class="text-sm font-black text-[#0194f3]"
+                                x-text="passengers[activePaxIndex].selectedSeats?.[activeSeatSegment] || '-'"></span>
+                        </div>
+                    </div>
+                    <button @click="createBooking()"
+                        class="w-full bg-[#ff5e1f] text-white py-4 rounded-2xl font-black shadow-lg uppercase tracking-widest text-sm active:scale-95">
+                        Konfirmasi & Booking
+                    </button>
+                </div>
+            </div>
+            <div x-show="step === 'review'" x-cloak class="min-h-screen bg-slate-50 pb-40">
+                <div class="bg-white p-4 text-slate-800 sticky top-0 z-50 shadow-sm flex items-center gap-4 border-b">
+                    <button @click="step = 'list'" class="p-1 hover:bg-slate-100 rounded-full transition">
+                        <i data-lucide="arrow-left" class="w-6 h-6"></i>
+                    </button>
+                    <h1 class="font-bold text-lg flex-1">Ringkasan Penerbangan</h1>
+                </div>
+                <div class="p-4 space-y-6">
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center px-1">
+                            <h2 class="font-bold text-slate-800 tracking-tight">Detail Keberangkatan</h2>
+                            <span
+                                class="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md uppercase"
+                                x-text="getAirlineName(selectedFlight?.segment[0].flightDetail[0].airlineCode)"></span>
+                        </div>
+                        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div
+                                    class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center font-black text-white text-xs shadow-md shadow-indigo-100">
+                                    <span x-text="selectedFlight?.segment[0].flightDetail[0].airlineCode"></span>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-slate-800 text-sm">
+                                        <span
+                                            x-text="getAirlineName(selectedFlight?.segment[0].flightDetail[0].airlineCode)"></span><span
+                                            class="text-slate-400 font-medium"
+                                            x-text="'(' + selectedFlight?.segment[0].flightDetail[0].airlineCode + ')'"></span>
+                                    </div>
+                                    <div class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter"
+                                        x-text="'Flight No: ' + selectedFlight?.segment[0].flightDetail[0].flightNumber.trim()">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-slate-600 text-xs space-y-2">
+                                <div class="flex items-center gap-2 font-medium text-slate-500">
+                                    <i data-lucide="map-pin" class="w-3 h-3 text-slate-400"></i><span
+                                        x-text="selectedFlight?.jiOrigin"></span><i data-lucide="move-right"
+                                        class="w-3 h-3 mx-1 text-slate-300"></i><span
+                                        x-text="selectedFlight?.jiDestination"></span><span
+                                        class="mx-1 text-slate-300">â€¢</span><span
+                                        x-text="search.departDateLabel"></span>
+                                </div>
+                                <div class="flex items-center gap-2 font-bold text-slate-800 text-sm">
+                                    <i data-lucide="clock" class="w-4 h-4 text-indigo-500"></i><span
+                                        x-text="selectedFlight?.jiDepartTime.split('T')[1].substring(0,5)"></span> -
+                                    <span
+                                        x-text="selectedFlight?.jiArrivalTime.split('T')[1].substring(0,5)"></span><span
+                                        class="text-slate-300 font-normal mx-1">|</span><span
+                                        class="text-slate-500 font-medium text-xs"
+                                        x-text="calculateDuration(selectedFlight?.jiDepartTime, selectedFlight?.jiArrivalTime)"></span>
+                                </div>
+                                <div class="flex items-center gap-2 pt-1 border-t border-slate-50 mt-2">
+                                    <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px] font-bold"
+                                        x-text="getClassName(selectedFlight?.chosenFare?.flightClass || selectedFlight?.segment[0].availableDetail[0].flightClass)"></span><span
+                                        class="text-slate-300">â€¢</span>
+                                    <div class="flex items-center gap-1">
+                                        <template x-if="isTransit('depart')"><span
+                                                class="text-orange-500 font-black uppercase text-[10px] flex items-center gap-1"><i
+                                                    data-lucide="refresh-cw" class="w-3 h-3"></i><span
+                                                    x-text="getTransitCount('depart') + ' Transit'"></span></span></template><template
+                                            x-if="!isTransit('depart')"><span
+                                                class="text-emerald-500 font-black uppercase text-[10px] flex items-center gap-1"><i
+                                                    data-lucide="zap"
+                                                    class="w-3 h-3"></i><span>Langsung</span></span></template>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <template x-if="search.tripType === 'RoundTrip' && selectedReturnFlight">
+                            <div class="space-y-3 mt-4">
+                                <div class="flex justify-between items-center px-1">
+                                    <h2 class="font-bold text-slate-800 tracking-tight">Detail Kepulangan</h2>
+                                    <span
+                                        class="text-[10px] font-black text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md uppercase"
+                                        x-text="getAirlineName(selectedReturnFlight?.segment[0].flightDetail[0].airlineCode)"></span>
+                                </div>
+                                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+                                    <div class="flex items-center gap-3 mb-4">
+                                        <div
+                                            class="w-10 h-10 bg-orange-500 rounded-xl flex items-center justify-center font-black text-white text-xs shadow-md shadow-orange-100">
+                                            <span
+                                                x-text="selectedReturnFlight?.segment[0].flightDetail[0].airlineCode"></span>
+                                        </div>
+                                        <div>
+                                            <div class="font-bold text-slate-800 text-sm"
+                                                x-text="getAirlineName(selectedReturnFlight?.segment[0].flightDetail[0].airlineCode)">
+                                            </div>
+                                            <div class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter"
+                                                x-text="'Flight No: ' + selectedReturnFlight?.segment[0].flightDetail[0].flightNumber.trim()">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-slate-600 text-xs space-y-2">
+                                        <div class="flex items-center gap-2 font-medium text-slate-500">
+                                            <span x-text="selectedReturnFlight?.jiOrigin"></span><i
+                                                data-lucide="move-right" class="w-3 h-3 text-slate-300"></i><span
+                                                x-text="selectedReturnFlight?.jiDestination"></span><span
+                                                class="mx-1 text-slate-300">â€¢</span><span
+                                                x-text="search.returnDateLabel"></span>
+                                        </div>
+                                        <div class="flex items-center gap-2 font-bold text-slate-800 text-sm">
+                                            <i data-lucide="clock" class="w-4 h-4 text-orange-500"></i><span
+                                                x-text="selectedReturnFlight?.jiDepartTime.split('T')[1].substring(0,5)"></span>
+                                            -
+                                            <span
+                                                x-text="selectedReturnFlight?.jiArrivalTime.split('T')[1].substring(0,5)"></span>
+                                        </div>
+                                        <div class="flex items-center gap-2 pt-1 border-t border-slate-50 mt-2">
+                                            <span
+                                                class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px] font-bold"
+                                                x-text="getClassName(selectedReturnFlight?.chosenFare?.flightClass || selectedReturnFlight?.segment[0].availableDetail[0].flightClass)"></span><span
+                                                class="text-slate-300">â€¢</span><template
+                                                x-if="isTransit('return')"><span
+                                                    class="text-orange-500 font-black uppercase text-[10px]"
+                                                    x-text="getTransitCount('return') + ' Transit'"></span></template><template
+                                                x-if="!isTransit('return')"><span
+                                                    class="text-emerald-500 font-black uppercase text-[10px]">Langsung</span></template>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="space-y-3">
+                        <h2 class="font-bold text-slate-800 px-1 uppercase text-[11px] tracking-widest">Kontak Pemesan
+                        </h2>
+                        <div
+                            class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 flex justify-between items-center group active:bg-slate-50 transition-all">
+                            <div class="flex-1 pr-4">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <div class="p-1.5 bg-blue-50 rounded-lg">
+                                        <i data-lucide="user-plus" class="w-4 h-4 text-[#0194f3]"></i>
+                                    </div>
+                                    <div class="font-bold text-slate-800 text-sm">Informasi Kontak</div>
+                                </div>
+                                <p class="text-[11px] text-slate-500 leading-relaxed">
+                                    Pastikan E-mail dan No. WhatsApp aktif untuk pengiriman E-Tiket.
+                                </p>
+                            </div>
+                            <button @click="setupPassengerForms(); step = 'passenger';"
+                                class="bg-[#0194f3] text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-lg shadow-blue-100 transition active:scale-95">
+                                Isi Data
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    class="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-slate-100 shadow-[0_-10px_25px_rgba(0,0,0,0.05)] z-50">
+                    <div class="max-w-md mx-auto">
+                        <div class="flex justify-between items-center mb-4 px-1">
+                            <div class="flex flex-col">
+                                <span
+                                    class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Total
+                                    Pembayaran</span>
+                                <div class="flex items-center gap-1">
+                                    <i data-lucide="shield-check" class="w-3 h-3 text-green-500"></i><span
+                                        class="text-[9px] text-green-600 font-bold uppercase">Harga sudah termasuk
+                                        pajak</span>
+                                </div>
+                            </div>
+                            <div class="text-[#0194f3] font-black text-2xl leading-none tracking-tighter"
+                                x-text="'Rp ' + Math.round(validatedTotalPrice).toLocaleString('id-ID')"></div>
+                        </div>
+                        <button @click="processAddonsAndSeats()"
+                            class="w-full bg-[#0194f3] text-white py-4 rounded-2xl font-bold text-sm shadow-lg shadow-blue-200 active:scale-[0.98] transition-all flex justify-center items-center gap-2 group">
+                            <span>Konfirmasi & Lanjutkan</span><i data-lucide="arrow-right"
+                                class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div x-show="step === 'success'" x-cloak class="min-h-screen bg-slate-50 pb-12">
+                <div
+                    class="fixed top-0 left-0 right-0 z-[100] bg-[#0194f3] text-white shadow-lg p-4 flex items-center gap-4">
+                    <button @click="window.location.reload()"
+                        class="hover:bg-white/20 p-1 rounded-full transition-colors">
+                        <i data-lucide="arrow-left" class="w-6 h-6"></i>
+                    </button>
+                    <div>
+                        <h2 class="text-lg font-bold uppercase tracking-tight leading-none">Status Pesanan</h2>
+                        <p class="text-[10px] opacity-80 font-medium uppercase tracking-widest mt-1">Konfirmasi
+                            Reservasi</p>
+                    </div>
+                </div>
+                <div class="p-4 md:p-8 pt-24 max-w-xl mx-auto">
+                    <div class="text-center mb-8 animate-in zoom-in duration-500">
+                        <div class="relative inline-block mb-4">
+                            <div
+                                class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center shadow-lg shadow-green-100">
+                                <i data-lucide="check" class="w-12 h-12 text-white"></i>
+                            </div>
+                            <div class="absolute -inset-3 bg-green-100 rounded-full -z-10 animate-ping opacity-30">
+                            </div>
+                        </div>
+                        <h2 class="text-2xl font-black text-slate-800 mb-1 uppercase tracking-tighter">Pemesanan
+                            Berhasil!</h2>
+                        <p class="text-[11px] text-slate-400 font-bold uppercase tracking-widest">
+                            Tiket Anda telah diamankan (Status: HOLD)
+                        </p>
+                    </div>
+                    <div
+                        class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 mb-6 relative overflow-hidden text-left">
+                        <div class="absolute top-0 right-0 p-2 opacity-10">
+                            <i data-lucide="plane" class="w-16 h-16 -rotate-12 text-slate-900"></i>
+                        </div>
+                        <div class="relative z-10 space-y-6">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-[9px] font-black text-blue-600 uppercase tracking-widest mb-1">
+                                        PERGI -
+                                        <span
+                                            x-text="(bookingResult?.airlineID || '') + ' ' + (bookingResult?.flightDeparts?.[0]?.flightNumber || '')"></span>
+                                    </p>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xl font-black text-slate-800"
+                                            x-text="bookingResult?.origin"></span><i data-lucide="arrow-right"
+                                            class="w-3 h-3 text-slate-300"></i><span
+                                            class="text-xl font-black text-slate-800"
+                                            x-text="bookingResult?.destination"></span>
+                                    </div>
+                                    <p class="text-[10px] text-slate-400 font-bold uppercase"
+                                        x-text="bookingResult?.departDate?.split('T')[0]"></p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                                        Berangkat</p>
+                                    <p class="text-lg font-black text-slate-800"
+                                        x-text="bookingResult?.flightDeparts?.[0]?.fdDepartTime ? bookingResult.flightDeparts[0].fdDepartTime.split('T')[1].substring(0,5) : '--:--'">
+                                    </p>
+                                </div>
+                            </div>
+                            <template x-if="bookingResult?.tripType === 'RoundTrip'">
+                                <div class="pt-4 border-t border-slate-50 flex justify-between items-start">
+                                    <div>
+                                        <p class="text-[9px] font-black text-orange-600 uppercase tracking-widest mb-1">
+                                            PULANG -
+                                            <span
+                                                x-text="(bookingResult?.airlineID || '') + ' ' + (bookingResult?.flightReturns?.[0]?.flightNumber || '')"></span>
+                                        </p>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-xl font-black text-slate-800"
+                                                x-text="bookingResult?.destination"></span><i data-lucide="arrow-right"
+                                                class="w-3 h-3 text-slate-300"></i><span
+                                                class="text-xl font-black text-slate-800"
+                                                x-text="bookingResult?.origin"></span>
+                                        </div>
+                                        <p class="text-[10px] text-slate-400 font-bold uppercase"
+                                            x-text="bookingResult?.returnDate?.split('T')[0]"></p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                                            Berangkat
+                                        </p>
+                                        <p class="text-lg font-black text-slate-800"
+                                            x-text="bookingResult?.flightReturns?.[0]?.fdDepartTime ? bookingResult.flightReturns[0].fdDepartTime.split('T')[1].substring(0,5) : '--:--'">
+                                        </p>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                    <template x-if="!isDetailFetched"><button @click="getDetail()" :disabled="loading"
+                            class="w-full bg-[#0194f3] hover:bg-blue-600 text-white font-black py-4 rounded-2xl flex justify-center items-center gap-3 transition-all active:scale-95 shadow-xl shadow-blue-100 text-sm uppercase tracking-widest">
+                            <i x-show="!loading" data-lucide="file-text" class="w-5 h-5"></i><i x-show="loading"
+                                data-lucide="refresh-cw" class="w-5 h-5 animate-spin"></i><span
+                                x-text="loading ? 'Menyinkronkan...' : 'Lihat Rincian Reservasi'"></span></button></template><template
+                        x-if="bookingDetail">
+                        <div class="animate-in slide-in-from-bottom-6 duration-700">
+                            <div
+                                class="bg-white rounded-[2rem] overflow-hidden shadow-2xl shadow-slate-200/50 border border-slate-100">
+                                <div class="bg-slate-50 p-6 border-b border-slate-100">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <p
+                                                class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                                                Status Pembayaran
+                                            </p>
+                                            <span
+                                                :class="bookingDetail.ticketStatus.toLowerCase() === 'ticketed' ? 'bg-green-500 text-white' : 'bg-orange-500 text-white'"
+                                                class="px-3 py-1 rounded-lg text-[10px] font-black uppercase shadow-sm"
+                                                x-text="bookingDetail.ticketStatus"></span>
+                                        </div>
+                                        <div class="text-right">
+                                            <p
+                                                class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                                                Kode PNR
+                                            </p>
+                                            <p class="text-xl font-black text-[#0194f3] font-mono"
+                                                x-text="bookingDetail.bookingCode"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-6 space-y-6 text-left">
+                                    <div class="grid grid-cols-2 gap-6">
+                                        <div>
+                                            <p
+                                                class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                                                No. Referensi
+                                            </p>
+                                            <p class="text-xs font-bold text-slate-700"
+                                                x-text="bookingDetail.referenceNo"></p>
+                                        </div>
+                                        <div>
+                                            <p
+                                                class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                                                Batas Bayar
+                                            </p>
+                                            <p class="text-xs font-black text-red-500"
+                                                x-text="bookingDetail.timeLimit || 'Segera'"></p>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                                            Detail Penerbangan Pergi
+                                        </p>
+                                        <div
+                                            class="bg-slate-50 p-3 rounded-2xl border border-slate-100 flex justify-between">
+                                            <span class="text-[11px] font-bold text-slate-700"
+                                                x-text="bookingDetail.flightDeparts?.[0]?.flightNumber + ' (Kelas ' + bookingDetail.flightDeparts?.[0]?.fdFlightClass + ')'"></span><span
+                                                class="text-[11px] font-black text-slate-700"
+                                                x-text="bookingDetail.origin + ' â†’ ' + bookingDetail.destination"></span>
+                                        </div>
+                                    </div>
+                                    <template x-if="bookingDetail.tripType === 'RoundTrip'">
+                                        <div>
+                                            <p
+                                                class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                                                Detail Penerbangan Pulang
+                                            </p>
+                                            <div
+                                                class="bg-slate-50 p-3 rounded-2xl border border-slate-100 flex justify-between">
+                                                <span class="text-[11px] font-bold text-slate-700"
+                                                    x-text="bookingDetail.flightReturns?.[0]?.flightNumber + ' (Kelas ' + bookingDetail.flightReturns?.[0]?.fdFlightClass + ')'"></span><span
+                                                    class="text-[11px] font-black text-slate-700"
+                                                    x-text="bookingDetail.destination + ' â†’ ' + bookingDetail.origin"></span>
+                                            </div>
+                                        </div>
+                                    </template>
+                                    <div>
+                                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">
+                                            Daftar Penumpang
+                                        </p>
+                                        <div class="space-y-2">
+                                            <template x-for="(pax, idx) in bookingDetail.passengers" :key="idx">
+                                                <div
+                                                    class="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                                                    <div
+                                                        class="w-6 h-6 bg-white rounded-lg flex items-center justify-center shadow-sm">
+                                                        <i data-lucide="user" class="w-3 h-3 text-slate-400"></i>
+                                                    </div>
+                                                    <span class="text-[11px] font-black text-slate-700 uppercase"
+                                                        x-text="pax.title + ' ' + pax.firstName + ' ' + (pax.lastName || '')"></span>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="bg-slate-900 rounded-3xl p-6 text-white relative overflow-hidden shadow-xl shadow-slate-900/20 border border-white/5">
+                                        <div
+                                            class="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full -mr-16 -mt-16 blur-2xl">
+                                        </div>
+                                        <div
+                                            class="absolute bottom-0 left-0 w-24 h-24 bg-purple-500/10 rounded-full -ml-12 -mb-12 blur-2xl">
+                                        </div>
+                                        <div class="flex justify-between items-start mb-4">
+                                            <div>
+                                                <p
+                                                    class="text-[8px] font-black text-blue-400 uppercase tracking-[0.1em]">
+                                                    Total Tagihan
+                                                </p>
+                                                <div class="flex items-baseline gap-1 mt-0.5">
+                                                    <span class="text-xl font-black tracking-tighter text-white"
+                                                        x-text="'Rp ' + Math.ceil((bookingDetail.adminFee?.ticketPrice + (biayaAdminJagel || 0)) - ((bookingDetail.adminFee?.ticketPrice - bookingDetail.adminFee?.salesPrice) * 0.5)).toLocaleString('id-ID')"></span>
+                                                </div>
+                                            </div>
+
+                                            <div
+                                                class="bg-white/10 backdrop-blur-md border border-white/10 px-2 py-0.5 rounded-lg">
+                                                <span
+                                                    class="text-[10px] font-bold text-blue-300 tracking-tight whitespace-nowrap">
+                                                    SPECIAL RATE
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="bg-white/5 rounded-2xl p-3 border border-white/5">
+                                            <div class="flex justify-between items-center mb-1">
+                                                <span class="text-[10px] text-slate-400 font-medium italic">Harga
+                                                    Sebelum Diskon</span><span
+                                                    class="text-[11px] text-slate-400 line-through tracking-wide"
+                                                    x-text="'Rp ' + (bookingDetail.adminFee?.ticketPrice + (biayaAdminJagel || 0)).toLocaleString('id-ID')"></span>
+                                            </div>
+                                            <div class="flex justify-between items-center">
+                                                <div class="flex items-center gap-1.5">
+                                                    <div class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse">
+                                                    </div>
+                                                    <span
+                                                        class="text-[10px] font-bold text-green-400 uppercase tracking-tight">Diskon</span>
+                                                </div>
+                                                <span class="text-xs font-black text-green-400"
+                                                    x-text="'- Rp ' + Math.floor((bookingDetail.adminFee?.ticketPrice - bookingDetail.adminFee?.salesPrice) * 0.5).toLocaleString('id-ID')"></span>
+                                            </div>
+                                        </div>
+                                        <div class="mt-4 flex justify-between items-center">
+                                            <div class="flex items-center gap-2">
+                                                <div class="flex -space-x-2">
+                                                    <div
+                                                        class="w-5 h-5 rounded-full border-2 border-slate-900 bg-blue-500 flex items-center justify-center">
+                                                        <i data-lucide="shield-check" class="w-3 h-3 text-white"></i>
+                                                    </div>
+                                                    <div
+                                                        class="w-5 h-5 rounded-full border-2 border-slate-900 bg-purple-500 flex items-center justify-center">
+                                                        <i data-lucide="zap" class="w-3 h-3 text-white"></i>
+                                                    </div>
+                                                </div>
+                                                <span
+                                                    class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Harga
+                                                    Final & Terproteksi</span>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="text-[8px] text-slate-500 uppercase font-bold leading-none">
+                                                    Anda Hemat
+                                                </p>
+                                                <p class="text-[11px] text-blue-400 font-black tracking-tight"
+                                                    x-text="'Rp ' + Math.floor((bookingDetail.adminFee?.ticketPrice - bookingDetail.adminFee?.salesPrice) * 0.5).toLocaleString('id-ID')">
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="pt-2">
+                                        <template
+                                            x-if="['hold', 'processed'].includes(bookingDetail.ticketStatus.toLowerCase())"><button
+                                                @click="confirmIssued()" :disabled="loading"
+                                                class="w-full bg-[#ff5e1f] hover:bg-orange-600 text-white font-black py-4 rounded-2xl shadow-lg flex justify-center items-center gap-2 text-sm uppercase tracking-widest transition-all active:scale-95">
+                                                <i data-lucide="credit-card" class="w-5 h-5"></i><span
+                                                    x-text="loading ? 'Memproses...' : 'Bayar Sekarang'"></span></button></template><template
+                                            x-if="['ticketed', 'issued'].includes(bookingDetail?.ticketStatus?.toLowerCase())"><button
+                                                @click="openETicket()"
+                                                class="w-full bg-green-600 hover:bg-green-700 text-white font-black py-4 rounded-2xl shadow-lg flex justify-center items-center gap-2 text-sm uppercase tracking-widest transition-all active:scale-95">
+                                                <i data-lucide="ticket" class="w-5 h-5"></i><span>Download
+                                                    E-Ticket</span>
+                                            </button></template>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template><button @click="window.location.reload()"
+                        class="w-full mt-8 font-black text-slate-400 text-[10px] uppercase tracking-[0.3em] flex items-center justify-center gap-2 py-4 hover:text-blue-500 transition-colors">
+                        <i data-lucide="home" class="w-4 h-4"></i> Kembali ke Beranda
+                    </button>
+                </div>
+            </div>
+            <div x-show="step === 'e-ticket'" x-cloak class="min-h-screen bg-slate-50 pb-20">
+                <div class="bg-green-600 p-4 text-white flex items-center gap-4 sticky top-0 z-50 shadow-md">
+                    <button @click="step = 'passenger'"><i data-lucide="arrow-left"></i></button>
+                    <div class="flex-1">
+                        <h2 class="font-bold uppercase tracking-tight">E-Ticket Ready</h2>
+                        <p class="text-[10px] opacity-80" x-text="'Ref No: ' + bookingDetail.referenceNo"></p>
+                    </div>
+                    <i data-lucide="shield-check" class="w-6 h-6"></i>
+                </div>
+                <div class="p-4 space-y-4">
+                    <div class="bg-white rounded-3xl shadow-sm border overflow-hidden">
+                        <div class="bg-slate-900 p-4 text-white flex justify-between items-center">
+                            <div class="flex items-center gap-2">
+                                <div class="p-2 bg-white/10 rounded-lg">
+                                    <span class="font-black text-xs" x-text="bookingDetail.airlineID"></span>
+                                </div>
+                                <span class="font-bold text-sm uppercase" x-text="bookingDetail.airline"></span>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[8px] text-gray-400 uppercase">Kode Booking</p>
+                                <p class="font-black text-lg text-green-400 tracking-widest"
+                                    x-text="bookingDetail.bookingCode"></p>
+                            </div>
+                        </div>
+                        <div class="p-6 space-y-6">
+                            <div class="space-y-4">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span
+                                        class="px-2 py-0.5 bg-blue-100 text-blue-600 text-[8px] font-black rounded uppercase">Tiket
+                                        Pergi</span>
+                                </div>
+                                <div class="flex justify-between items-center relative">
+                                    <div class="text-left">
+                                        <p class="text-2xl font-black text-slate-800"
+                                            x-text="bookingDetail.origin.substring(0,3).toUpperCase()"></p>
+                                        <p class="text-[10px] text-gray-400 font-bold uppercase"
+                                            x-text="bookingDetail.departDate.split('T')[0]"></p>
+                                    </div>
+                                    <div class="flex-1 flex flex-col items-center px-4">
+                                        <div class="w-full h-[1px] bg-dashed bg-slate-200 relative">
+                                            <i data-lucide="plane"
+                                                class="w-4 h-4 text-green-600 absolute -top-2 left-1/2 -translate-x-1/2 bg-white px-1"></i>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-2xl font-black text-slate-800"
+                                            x-text="bookingDetail.destination.substring(0,3).toUpperCase()"></p>
+                                        <p class="text-[10px] text-gray-400 font-bold uppercase"
+                                            x-text="bookingDetail.airline"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <template x-if="bookingDetail.tripType === 'RoundTrip'">
+                                <div class="space-y-4 pt-4 border-t border-dashed">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span
+                                            class="px-2 py-0.5 bg-orange-100 text-orange-600 text-[8px] font-black rounded uppercase">Tiket
+                                            Pulang</span>
+                                    </div>
+                                    <div class="flex justify-between items-center relative">
+                                        <div class="text-left">
+                                            <p class="text-2xl font-black text-slate-800"
+                                                x-text="bookingDetail.destination.substring(0,3).toUpperCase()"></p>
+                                            <p class="text-[10px] text-gray-400 font-bold uppercase"
+                                                x-text="bookingDetail.returnDate.split('T')[0]"></p>
+                                        </div>
+                                        <div class="flex-1 flex flex-col items-center px-4">
+                                            <div class="w-full h-[1px] bg-dashed bg-slate-200 relative">
+                                                <i data-lucide="plane"
+                                                    class="w-4 h-4 text-orange-600 absolute -top-2 left-1/2 -translate-x-1/2 bg-white px-1 rotate-180"></i>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-2xl font-black text-slate-800"
+                                                x-text="bookingDetail.origin.substring(0,3).toUpperCase()"></p>
+                                            <p class="text-[10px] text-gray-400 font-bold uppercase"
+                                                x-text="bookingDetail.airline"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                            <hr class="border-dashed" />
+                            <div class="space-y-3">
+                                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Daftar
+                                    Penumpang</p>
+                                <template x-for="(pax, index) in bookingDetail.passengers" :key="index">
+                                    <div
+                                        class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 bg-white rounded-full border flex items-center justify-center text-[10px] font-bold text-slate-400"
+                                                x-text="index + 1"></div>
+                                            <div>
+                                                <p class="font-bold text-slate-700 text-xs uppercase"
+                                                    x-text="pax.title + ' ' + pax.firstName + ' ' + pax.lastName"></p>
+                                                <p class="text-[9px] text-gray-400 font-bold uppercase"
+                                                    x-text="pax.type"></p>
+                                            </div>
+                                        </div>
+                                        <i data-lucide="check-circle-2" class="w-4 h-4 text-green-500"></i>
+                                    </div>
+                                </template>
+                            </div>
+                            <hr class="border-dashed" />
+                            <div class="bg-slate-900 rounded-2xl p-4 text-white">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-[10px] text-gray-400 font-bold uppercase">Total Bayar</span><span
+                                        class="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded uppercase">Lunas</span>
+                                </div>
+                                <div class="flex justify-between items-baseline">
+                                    <span class="text-xs font-bold opacity-60">IDR</span><span
+                                        class="text-2xl font-black text-white"
+                                        x-text="Math.ceil( (bookingDetail.adminFee.ticketPrice + (biayaAdminJagel || 0)) - ((bookingDetail.adminFee.ticketPrice - bookingDetail.adminFee.salesPrice) * 0.5) ).toLocaleString('id-ID')"></span>
+                                </div>
+                                <p class="text-[8px] text-gray-500 mt-2 italic">*Harga sudah termasuk promo diskon.</p>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-slate-50 border-t flex justify-center">
+                            <div class="text-center">
+                                <p class="text-[10px] font-bold text-slate-400 mb-2 uppercase tracking-[0.3em]">Status
+                                    Tiket</p>
+                                <div class="px-6 py-2 bg-green-100 text-green-700 rounded-full font-black text-xs uppercase tracking-widest shadow-sm"
+                                    x-text="bookingDetail.ticketStatus"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button v-if="bookingResult && bookingResult.status === 'SUCCESS'" @click="downloadTicket"
+                            class="flex flex-col items-center justify-center p-4 bg-white border rounded-2xl gap-2 shadow-sm active:bg-slate-50">
+                            <i data-lucide="download" class="w-5 h-5 text-blue-600"></i><span
+                                class="text-[10px] font-bold uppercase text-slate-600">Unduh PDF</span></button><button
+                            class="flex flex-col items-center justify-center p-4 bg-white border rounded-2xl gap-2 shadow-sm active:bg-slate-50">
+                            <i data-lucide="share-2" class="w-5 h-5 text-blue-600"></i><span
+                                class="text-[10px] font-bold uppercase text-slate-600">Bagikan</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div x-show="showPaxModal" x-cloak class="fixed inset-0 bg-black/60 z-[160] flex items-end">
+                <div class="bg-white w-full rounded-t-lg p-6 modal-bottom">
+                    <h3
+                        class="text-center font-black border-b pb-4 mb-8 uppercase text-slate-400 text-[10px] tracking-widest">
+                        Tambahkan Penumpang
+                    </h3>
+                    <div class="space-y-8 mb-10 px-4">
+                        <template x-for="p in ['adult', 'child', 'infant']" :key="p">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="font-black text-lg capitalize tracking-tight"
+                                        :class="p === 'adult' ? 'text-[#ff5e1f]' : 'text-slate-700'"
+                                        x-text="p === 'adult' ? 'Dewasa' : (p === 'child' ? 'Anak' : 'Bayi')"></div>
+                                    <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider"
+                                        x-text="p === 'adult' ? '12 thn ke atas' : (p === 'child' ? '2-11 thn' : '< 2 thn')">
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-6">
+                                    <button @click="if(paxCount[p] > (p === 'adult' ? 1 : 0)) paxCount[p]--"
+                                        class="w-8 h-8 rounded-full border border-slate-200 text-blue-500 font-bold">
+                                        -</button><span class="text-xl font-black w-6 text-center"
+                                        x-text="paxCount[p]"></span><button @click="paxCount[p]++"
+                                        class="w-8 h-8 rounded-full border border-slate-200 text-blue-500 font-bold">
+                                        +
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <button @click="showPaxModal = false"
+                        class="w-full py-4 bg-[#0194f3] text-white font-black rounded-lg text-sm tracking-widest uppercase tracking-widest">
+                        Selesai
+                    </button>
+                </div>
+            </div>
+            <div x-show="showClassModal" x-cloak class="fixed inset-0 bg-black/60 z-[160] flex items-end">
+                <div class="bg-white w-full rounded-t-lg p-6 modal-bottom">
+                    <h3
+                        class="text-center font-black border-b pb-4 mb-6 uppercase text-slate-400 text-[10px] tracking-widest">
+                        Pilih Kelas
+                    </h3>
+                    <div class="space-y-3 mb-8 px-2">
+                        <template x-for="cls in classes" :key="cls.name"><label
+                                @click="search.cabinClass = cls.name; showClassModal = false"
+                                class="flex items-start gap-4 p-4 border rounded-lg cursor-pointer transition shadow-sm"
+                                :class="search.cabinClass === cls.name ? 'border-blue-500 bg-blue-50' : 'border-gray-100'"><input
+                                    type="radio" x-model="search.cabinClass" :value="cls.name"
+                                    class="mt-1 w-5 h-5 accent-[#0194f3]" />
+                                <div>
+                                    <div class="font-black text-gray-800 text-sm uppercase" x-text="cls.name"></div>
+                                    <div class="text-[10px] text-gray-500 font-medium leading-tight" x-text="cls.desc">
+                                    </div>
+                                </div>
+                            </label></template>
+                    </div>
+                </div>
+            </div>
+            <div x-show="showCalendar" x-cloak
+                class="fixed inset-0 bg-white z-[150] flex flex-col uppercase tracking-tighter">
+                <div class="p-4 border-b flex items-center gap-4 bg-[#0194f3] text-white shadow-md">
+                    <button @click="showCalendar = false"><i data-lucide="arrow-left"></i></button><span
+                        class="font-bold text-xs tracking-widest uppercase"
+                        x-text="activeModalType === 'return' ? 'Pilih Tanggal Kepulangan' : 'Pilih Tanggal Keberangkatan'"></span>
+                </div>
+                <div class="flex-1 overflow-y-auto p-4 custom-scroll">
+                    <template x-for="month in calendarData" :key="month.id">
+                        <div class="mb-10 text-center">
+                            <h3 class="font-black text-slate-800 mb-4 text-base uppercase"
+                                x-text="month.name + ' ' + month.year"></h3>
+                            <div
+                                class="grid grid-cols-7 text-[10px] font-black text-slate-300 mb-4 uppercase tracking-[0.2em] text-center">
+                                <span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span>Sab</span><span
+                                    class="text-red-400">Min</span>
+                            </div>
+                            <div class="grid grid-cols-7 gap-y-1 text-center font-black">
+                                <template x-for="i in month.startDay" :key="'blank-'+month.id+'-'+i">
+                                    <div class="py-3"></div>
+                                </template><template x-for="day in month.days" :key="day"><button type="button"
+                                        @click="!isDateDisabled(day, month.monthIndex, month.year) && selectDate(day, month.monthIndex, month.year)"
+                                        :disabled="isDateDisabled(day, month.monthIndex, month.year)"
+                                        :class="{ 'bg-blue-600 text-white': isSelected(day, month.monthIndex, month.year), 'text-slate-300': isDateDisabled(day, month.monthIndex, month.year), 'hover:bg-blue-50': !isDateDisabled(day, month.monthIndex, month.year) }"
+                                        x-text="day"></button></template>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+            <div x-show="showRouteModal" x-cloak
+                class="fixed inset-0 bg-white z-[150] flex flex-col uppercase tracking-tighter">
+                <div class="bg-[#0194f3] p-4 flex items-center gap-4 text-white shadow-md">
+                    <div class="relative flex-1 tracking-widest">
+                        <input type="text" x-model="searchCity" placeholder="Cari Kota atau Bandara..."
+                            class="w-full p-2.5 rounded-lg outline-none text-sm font-bold text-slate-800 shadow-inner" />
+                    </div>
+                    <button @click="showRouteModal = false"
+                        class="font-bold text-sm tracking-widest uppercase">Batal</button>
+                </div>
+                <div class="flex-1 overflow-y-auto custom-scroll p-2 text-slate-700">
+                    <template x-for="port in filteredAirports()" :key="port.code">
+                        <div @click="selectAirport(port)"
+                            class="flex items-center gap-4 p-5 border-b active:bg-blue-50 transition cursor-pointer group">
+                            <div
+                                class="w-10 h-10 bg-slate-50 border border-slate-100 rounded-full flex items-center justify-center group-hover:bg-blue-100 transition-colors">
+                                <i data-lucide="plane" class="w-5 h-5 text-[#0194f3]"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="font-black text-slate-800 flex justify-between uppercase">
+                                    <span x-text="port.city"></span><span class="text-[#0194f3] font-black"
+                                        x-text="port.code"></span>
+                                </div>
+                                <div class="text-[10px] text-slate-400 font-bold uppercase mt-0.5 tracking-widest"
+                                    x-text="port.name"></div>
+                            </div>
+                        </div>
+                    </template>
+                    <div x-show="filteredAirports().length === 0"
+                        class="p-10 text-center flex flex-col items-center opacity-50">
+                        <i data-lucide="search-x" class="w-10 h-10 mb-2 text-slate-300"></i>
+                        <p class="text-xs font-bold uppercase tracking-widest">Kota atau Bandara tidak ditemukan</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div x-show="showConfirmModal" class="fixed inset-0 z-[120] flex items-center justify-center p-4" x-cloak>
+            <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" @click="showConfirmModal = false"></div>
+            <div x-show="showConfirmModal" x-transition:enter="transition ease-out duration-300 transform"
+                x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+                class="relative bg-white rounded-3xl shadow-2xl max-w-sm w-full p-8 text-center overflow-hidden">
+                <template x-if="isSaldoCukup">
+                    <div>
+                        <div class="mb-6">
+                            <div
+                                class="w-20 h-20 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i data-lucide="alert-circle" class="w-10 h-10"></i>
+                            </div>
+                            <h3 class="text-2xl font-black text-slate-800 tracking-tighter uppercase">Konfirmasi
+                                Pembayaran</h3>
+                            <p class="text-slate-500 mt-2 text-sm">
+                                Anda akan membayar sebesar
+                                <span class="font-bold text-slate-800"
+                                    x-text="new Intl.NumberFormat('id-ID').format(totalBayarJagel)"></span>. Koin akan
+                                langsung terpotong.
+                            </p>
+                        </div>
+                        <div class="flex flex-col gap-3">
+                            <button @click="issueTicket()"
+                                class="w-full bg-orange-500 hover:bg-orange-600 text-white font-black py-4 rounded-2xl shadow-lg transition-all uppercase tracking-widest text-xs">
+                                Ya, Bayar Sekarang</button><button @click="showConfirmModal = false"
+                                class="w-full bg-slate-100 text-slate-500 font-bold py-4 rounded-2xl transition-all uppercase tracking-widest text-xs">
+                                Batal
+                            </button>
+                        </div>
+                    </div>
+                </template><template x-if="!isSaldoCukup">
+                    <div>
+                        <div class="mb-6">
+                            <div
+                                class="w-20 h-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i data-lucide="wallet" class="w-10 h-10"></i>
+                            </div>
+                            <h3 class="text-2xl font-black text-slate-800 tracking-tighter uppercase">Koin Tidak Cukup
+                            </h3>
+                            <p class="text-slate-500 mt-2 text-sm">
+                                Koin Anda kurang
+                                <span class="text-red-500 font-bold"
+                                    x-text=" + new Intl.NumberFormat('id-ID').format(saldoDibutuhkan)"></span>.
+                            </p>
+                        </div>
+                        <div class="flex flex-col gap-3">
+                            <button @click="window.top.location.href = urlDepositJagel"
+                                class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl shadow-lg transition-all active:scale-95 uppercase tracking-widest text-[10px]">
+                                Isi Koin Sekarang
+                            </button>
+                            <button @click="showConfirmModal = false"
+                                class="w-full bg-slate-100 text-slate-500 font-bold py-4 rounded-2xl transition-all uppercase tracking-widest text-xs">
+                                Nanti Saja
+                            </button>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+
+</body>
+
+</html>
