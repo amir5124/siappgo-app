@@ -1,40 +1,50 @@
 <?php
-// Izinkan akses dari browser (CORS)
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 header('Content-Type: application/json');
 
-// 1. Ambil data JSON yang dikirim dari HTML
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') { exit; }
+
 $inputData = file_get_contents('php://input');
 $data = json_decode($inputData, true);
 
 if (!$data) {
-    echo json_encode(["status" => "error", "message" => "Tidak ada data yang dikirim"]);
+    echo json_encode(["success" => false, "message" => "Data tidak ditemukan"]);
     exit;
 }
 
-// 2. Setup Request ke API Jagel menggunakan cURL (Server-to-Server)
-$url = 'https://api.jagel.id/v1/balance/adjust';
-$ch = curl_init($url);
+// KONFIGURASI API KEY DI SINI (Lebih Aman)
+$apiKeyJagel = "c6wA9HlUkN2PYEpEOYmDwiehrw7QMIVAvPETMpR2NRN4jjnYPO";
 
+// Susun ulang payload agar bersih
+$payload = [
+    "type"   => "username",
+    "value"  => $data['value'],
+    "amount" => (int)$data['amount'],
+    "note"   => $data['note'],
+    "apikey" => $apiKeyJagel // API Key ditempel di sini
+];
+
+$ch = curl_init('https://api.jagel.id/v1/balance/adjust');
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-curl_setopt($ch, CURLOPT_HTTPHEADER, [
-    'Content-Type: application/json'
-]);
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); 
 
-// 3. Eksekusi dan ambil hasilnya
 $response = curl_exec($ch);
-$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+$info = curl_getinfo($ch);
+curl_close($ch);
 
-if (curl_errno($ch)) {
-    echo json_encode(["status" => "error", "message" => curl_error($ch)]);
+// Jika Jagel menolak IP, kita tampilkan juga IP VPS kita untuk mempermudah whitelist
+$resArray = json_decode($response, true);
+if (isset($resArray['message']) && $resArray['message'] == "IP Ditolak") {
+    // Mencoba mengambil IP Server/VPS Anda
+    $vpsIP = $_SERVER['SERVER_ADDR'] ?? 'Cek di dashboard VPS';
+    $resArray['debug_vps_ip'] = $vpsIP; 
+    echo json_encode($resArray);
 } else {
-    // 4. Kembalikan jawaban Jagel ke HTML
     echo $response;
 }
-
-curl_close($ch);
 ?>
